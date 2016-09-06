@@ -186,6 +186,9 @@ function Player() {
 
         this.size = 6;
 
+        this.width = 30;
+        this.height = 3;
+
         this.score = 0;
 
         this.handleInput = this.handleInput.bind(this);
@@ -257,11 +260,14 @@ function Player() {
 
     this.render = function() {
         this.ctx.fillStyle = this.color;
-        this.ctx.beginPath();
-        this.ctx.arc((Math.cos(deg2rad(this.axisPool[this.axis])) * (this.minOffset + this.offset * this.pos)) + w/2,
-                        (Math.sin(deg2rad(this.axisPool[this.axis])) * (this.minOffset + this.offset * this.pos)) + h/2,
-                        this.size, 0, Math.PI*2);
-        this.ctx.fill();
+
+        if (Math.abs(Math.cos(deg2rad(this.axisPool[this.axis]))) > 0.5) {
+            this.ctx.fillRect((Math.cos(deg2rad(this.axisPool[this.axis])) * (1 + this.minOffset + this.offset * this.pos)) + w/2 - this.width/2,
+                                (Math.sin(deg2rad(this.axisPool[this.axis])) * (this.minOffset + this.offset * this.pos)) + h/2 - this.height/2, this.width, this.height);
+        } else {
+            this.ctx.fillRect((Math.cos(deg2rad(this.axisPool[this.axis])) * (1 + this.minOffset + this.offset * this.pos)) + w/2 - this.height/2,
+                                (Math.sin(deg2rad(this.axisPool[this.axis])) * (this.minOffset + this.offset * this.pos)) + h/2 - this.width/2, this.height, this.width);
+        }
     }
 
 }
@@ -283,7 +289,7 @@ function Enemy() {
         this.minOffset = 64;
         this.offset = 30;
 
-        this.size = 14;
+        this.size = 6;
 
         this.speed = getRandomArbitrary(1, 4);
 
@@ -309,12 +315,13 @@ function Enemy() {
     }
 
     this.render = function() {
-        // TODO: inline variables
-        let x = (Math.cos(deg2rad(this.angle)) * (this.minOffset + this.offset * this.layer)) + w/2;
-        let y = (Math.sin(deg2rad(this.angle)) * (this.minOffset + this.offset * this.layer)) + h/2;
-
         this.ctx.fillStyle = `rgba(217, 91, 91, ${this.alpha})`;
-        this.ctx.fillRect(x - this.size/2, y - this.size/2, this.size, this.size);
+
+        this.ctx.beginPath();
+        this.ctx.arc((Math.cos(deg2rad(this.angle)) * (this.minOffset + this.offset * this.layer)) + w/2,
+                        (Math.sin(deg2rad(this.angle)) * (this.minOffset + this.offset * this.layer)) + h/2,
+                        this.size, 0, Math.PI*2);
+        this.ctx.fill();
     }
 
 }
