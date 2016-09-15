@@ -1,3 +1,5 @@
+var webpack = require("webpack");
+
 module.exports = {
     entry: "./src/intro.ts",
     output: {
@@ -11,6 +13,10 @@ module.exports = {
         // Add '.ts' and '.tsx' as resolvable extensions.
         extensions: ["", ".webpack.js", ".web.js", ".ts", ".js"]
     },
+
+    plugins: [
+        new webpack.optimize.UglifyJsPlugin()
+    ],
 
     module: {
         loaders: [
