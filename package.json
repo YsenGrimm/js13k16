@@ -1,0 +1,28 @@
+{
+  "name": "pulsarion",
+  "version": "1.0.0",
+  "description": "Something with circles for js13k.",
+  "main": "game.js",
+  "dependencies": {
+    "webpack": "^1.13.2",
+    "typescript": "^1.8.10"
+  },
+  "devDependencies": {
+    "source-map-loader": "^0.1.5",
+    "ts-loader": "^0.8.2"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "webpack"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YsenGrimm/js13k16.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/YsenGrimm/js13k16/issues"
+  },
+  "homepage": "https://github.com/YsenGrimm/js13k16#readme"
+}
