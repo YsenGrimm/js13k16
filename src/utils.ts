@@ -10,4 +10,8 @@ export class Utils {
     static getRandomArbitrary(min: number, max:number): number {
         return Math.random() * (max - min) + min;
     }
+
+    static getRandomColor(): string {
+        return `rgb(${Utils.getRandomInt(0, 255)}, ${Utils.getRandomInt(0, 255)}, ${Utils.getRandomInt(0, 255)})`;
+    }
 }

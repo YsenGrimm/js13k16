@@ -22,10 +22,10 @@ export class Player {
     gameWidth: number;
     gameHeigth: number;
 
-    constructor(id: number, ctx: CanvasRenderingContext2D, layer: number, color: string, startAxis: number, gameWidth: number, gameHeigth: number) {
+    constructor(id: number, ctx: CanvasRenderingContext2D, layer: number, startAxis: number, gameWidth: number, gameHeigth: number) {
         this.id = id;
         this.ctx = ctx;
-        this.color = color;
+        this.color = Utils.getRandomColor();
 
         this.pos = 0;
         this.axis = startAxis;
@@ -37,15 +37,14 @@ export class Player {
         this.size = 6;
 
         this.width = 30;
-        this.height = 3;
+        this.height = 4;
 
         this.score = 0;
 
         this.gameWidth = gameWidth;
         this.gameHeigth = gameHeigth;
 
-        this.handleInput = this.handleInput.bind(this);
-        document.addEventListener("keydown", this.handleInput);
+        document.addEventListener("keydown", e => this.handleInput(e));
     }
 
     private handleInput(e: KeyboardEvent) : void {
@@ -108,7 +107,7 @@ export class Player {
     }
 
     update() : void {
-
+        
     }
 
     render() : void {
