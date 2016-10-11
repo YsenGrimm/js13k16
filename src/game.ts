@@ -20,7 +20,7 @@ export class Game {
     layer: number;
     cells: number;
 
-    players: Array<Player>;
+    player: Player;
     enemies: Array<Enemy>;
     enemyIds: number;
 
@@ -41,9 +41,7 @@ export class Game {
         this.layer = 6;
         this.cells = 16;
 
-        this.players = new Array<Player>();
-        this.players[0] = new Player(0, this.ctx, this.layer, 0, this.w, this.h);
-        // this.players[1] = new Player(1, this.ctx, this.layer, 2, this.w, this.h);
+        this.player = new Player(0, this.ctx, this.layer, 0, this.w, this.h);
 
         this.enemies = new Array<Enemy>();
         this.enemyIds = 0;
@@ -82,22 +80,32 @@ export class Game {
             }
         }
 
-        this.players.forEach(player => {
-            player.update();
-        });
+        this.player.update();
 
-        for (let i = 0; i < this.players.length; i++) {
-            for (let j = 0; j < this.enemies.length; j++) {
-                if (this.players[i].pos === this.enemies[j].layer) {
-                    if (Math.abs(this.players[i].axisPool[this.players[i].axis] - this.enemies[j].angle) < this.collisionOffset) {
-                        // console.log("hit: " + enemies[j].id);
-                        this.players[i].score++;
+        for (let j = 0; j < this.enemies.length; j++) {
+            if (this.player.pos === this.enemies[j].layer) {
+                if (Math.abs(this.player.axisPool[this.player.axis] - this.enemies[j].angle) < this.collisionOffset) {                        
+                    this.player.health--;
 
-                        this.enemies = this.enemies.filter((e) => e !== this.enemies[j]);
-                        this.enemies.push(new Enemy(this.enemyIds++, this.ctx, this.layer, this.w, this.h));
-                    }
+                    this.enemies = this.enemies.filter((e) => e !== this.enemies[j]);
+                    this.enemies.push(new Enemy(this.enemyIds++, this.ctx, this.layer, this.w, this.h));
                 }
             }
+        }
+
+        for (let j = 0; j < this.gems.length; j++) {
+            if (this.player.pos === this.gems[j].layer) {
+                if (Math.abs(this.player.axisPool[this.player.axis] - this.gems[j].angle) < this.collisionOffset) {                        
+                    this.player.score++;
+
+                    this.gems = this.gems.filter((e) => e !== this.gems[j]);
+                    this.gems.push(new Gem(this.gemIds++, this.ctx, this.layer, this.w, this.h));
+                }
+            }
+        }
+
+        if (this.player.health < 0) {
+            this.resetGame();
         }
 
         this.draw();
@@ -120,15 +128,11 @@ export class Game {
             this.gems[i].render();
         }
 
-        for (let i = 0; i < this.players.length; i++) {
-            this.players[i].render();
-        }
+        this.player.render();
 
         this.ctx.font = "18px sans-serif";
         this.ctx.fillStyle = "#F28963";
-        this.ctx.fillText(this.players[0].score.toString(), 30, 40);
-        // this.ctx.fillStyle = "#F2D680";
-        // this.ctx.fillText(this.players[1].score.toString(), this.w - 40, 40);
+        this.ctx.fillText(this.player.score.toString(), 30, 40);
     }
 
     drawBoard() {
@@ -142,12 +146,21 @@ export class Game {
             this.ctx.stroke();
         }
 
-        this.ctx.fillStyle = "#D95970";
+        this.drawDebugLines();
+
+        // clear center circle
+        this.ctx.fillStyle = this.bgColor;
         this.ctx.beginPath();
-        this.ctx.arc(this.w/2, this.h/2, minR, 0, Math.PI*2);
+        this.ctx.arc(this.w/2, this.h/2, minR, 0, 2 * Math.PI);
         this.ctx.fill();
 
-        this.drawDebugLines();
+        // draw center circle aka player health
+        this.ctx.fillStyle = "#D95970";
+        this.ctx.beginPath();
+        this.ctx.lineTo(this.w/2 + minR, this.h/2);
+        this.ctx.arc(this.w/2, this.h/2, minR, 0, (this.player.health / this.player.maxHealth) * 2 * Math.PI, false);
+        this.ctx.lineTo(this.w/2, this.h/2);
+        this.ctx.fill();
     }
 
     drawDebugLines() {
@@ -160,5 +173,10 @@ export class Game {
             this.ctx.lineTo((Math.cos(Utils.deg2rad(i * slice)) * 230) + this.w/2, (Math.sin(Utils.deg2rad(i * slice)) * 230) + this.h/2);
             this.ctx.stroke();
         }
+    }
+
+    resetGame() {
+        this.player.health = this.player.maxHealth;
+        this.player.score = 0;
     }
 }

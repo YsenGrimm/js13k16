@@ -12,6 +12,9 @@ export class Player {
     minOffset: number;
     offset: number;
 
+    gameWidth: number;
+    gameHeigth: number;
+
     size: number;
 
     width: number;
@@ -19,8 +22,8 @@ export class Player {
 
     score: number;
 
-    gameWidth: number;
-    gameHeigth: number;
+    health: number;
+    maxHealth: number;
 
     constructor(id: number, ctx: CanvasRenderingContext2D, layer: number, startAxis: number, gameWidth: number, gameHeigth: number) {
         this.id = id;
@@ -34,6 +37,9 @@ export class Player {
         this.minOffset = 64;
         this.offset = 30;
 
+        this.gameWidth = gameWidth;
+        this.gameHeigth = gameHeigth;
+
         this.size = 6;
 
         this.width = 30;
@@ -41,8 +47,9 @@ export class Player {
 
         this.score = 0;
 
-        this.gameWidth = gameWidth;
-        this.gameHeigth = gameHeigth;
+        this.maxHealth = 3;
+        this.health = this.maxHealth;
+
 
         document.addEventListener("keydown", e => this.handleInput(e));
     }
