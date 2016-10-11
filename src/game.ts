@@ -2,6 +2,7 @@ import { Player } from "./player";
 import { Enemy } from "./enemy";
 import { Scanline } from "./scanline";
 import { Utils } from "./utils";
+import { Gem } from "./gem";
 
 export class Game {
 
@@ -23,6 +24,9 @@ export class Game {
     enemies: Array<Enemy>;
     enemyIds: number;
 
+    gems: Array<Gem>;
+    gemIds: number;
+
     scanline: Scanline;
 
     constructor() {
@@ -38,13 +42,19 @@ export class Game {
         this.cells = 16;
 
         this.players = new Array<Player>();
-        this.players[0] = new Player(0, this.ctx, this.layer, "#F28963", 0, this.w, this.h);
-        this.players[1] = new Player(1, this.ctx, this.layer, "#F2D680", 2, this.w, this.h);
+        this.players[0] = new Player(0, this.ctx, this.layer, 0, this.w, this.h);
+        // this.players[1] = new Player(1, this.ctx, this.layer, 2, this.w, this.h);
 
         this.enemies = new Array<Enemy>();
         this.enemyIds = 0;
         for (let i = 0; i < 10; i++) {
             this.enemies.push(new Enemy(this.enemyIds++, this.ctx, this.layer, this.w, this.h));
+        }
+
+        this.gems = new Array<Gem>();
+        this.gemIds = 0;
+        for (let i = 0; i < 10; i++) {
+            this.gems.push(new Gem(this.gemIds++, this.ctx, this.layer, this.w, this.h));
         }
 
         this.scanline = new Scanline(this.ctx, this.w, this.h);
@@ -63,6 +73,18 @@ export class Game {
                 this.enemies[i].alpha = 1;
             }
         }
+
+        for (let i = 0; i < this.gems.length; i++) {
+            this.gems[i].update();
+
+            if (Math.abs(this.gems[i].realPos - this.scanline.scanlinePos) < 2) {
+                this.gems[i].alpha = 1;
+            }
+        }
+
+        this.players.forEach(player => {
+            player.update();
+        });
 
         for (let i = 0; i < this.players.length; i++) {
             for (let j = 0; j < this.enemies.length; j++) {
@@ -94,6 +116,10 @@ export class Game {
             this.enemies[i].render();
         }
 
+        for (let i = 0; i < this.gems.length; i++) {
+            this.gems[i].render();
+        }
+
         for (let i = 0; i < this.players.length; i++) {
             this.players[i].render();
         }
@@ -101,8 +127,8 @@ export class Game {
         this.ctx.font = "18px sans-serif";
         this.ctx.fillStyle = "#F28963";
         this.ctx.fillText(this.players[0].score.toString(), 30, 40);
-        this.ctx.fillStyle = "#F2D680";
-        this.ctx.fillText(this.players[1].score.toString(), this.w - 40, 40);
+        // this.ctx.fillStyle = "#F2D680";
+        // this.ctx.fillText(this.players[1].score.toString(), this.w - 40, 40);
     }
 
     drawBoard() {
