@@ -5,15 +5,17 @@
   "main": "game.js",
   "dependencies": {
     "webpack": "^1.13.2",
-    "typescript": "^1.8.10"
+    "typescript": "^2.0.3"
   },
   "devDependencies": {
     "source-map-loader": "^0.1.5",
-    "ts-loader": "^0.8.2"
+    "ts-loader": "^0.8.2",
+    "webpack-dev-server": "^1.15.2"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "webpack"
+    "test": "webpack-dev-server",
+    "start": "webpack",
+    "release": "webpack --config release.webpack.config.js"
   },
   "repository": {
     "type": "git",
