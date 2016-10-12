@@ -13,7 +13,7 @@
     "webpack-dev-server": "^1.15.2"
   },
   "scripts": {
-    "test": "webpack-dev-server",
+    "dev": "webpack-dev-server",
     "start": "webpack",
     "release": "webpack --config release.webpack.config.js"
   },
@@ -21,7 +21,7 @@
     "type": "git",
     "url": "git+https://github.com/YsenGrimm/js13k16.git"
   },
-  "author": "",
+  "author": "YsenGrimm",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/YsenGrimm/js13k16/issues"
