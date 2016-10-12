@@ -1,6 +1,6 @@
 import { Utils } from "./utils";
 
-enum GemType {
+export enum GemType {
     G,
     B,
     Y,

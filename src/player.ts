@@ -28,7 +28,7 @@ export class Player {
     constructor(id: number, ctx: CanvasRenderingContext2D, layer: number, startAxis: number, gameWidth: number, gameHeigth: number) {
         this.id = id;
         this.ctx = ctx;
-        this.color = Utils.getRandomColor();
+        this.color = "rgb(242, 214, 128)";
 
         this.pos = 0;
         this.axis = startAxis;
