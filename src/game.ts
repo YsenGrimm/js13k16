@@ -4,11 +4,19 @@ import { Scanline } from "./scanline";
 import { Utils } from "./utils";
 import { Gem } from "./gem";
 
+import { PATTERN } from "./pattern";
+
 export class Game {
 
     // setup
     canvas: HTMLCanvasElement;
     ctx: CanvasRenderingContext2D;
+
+    // world map
+    layer: number;
+    cells: number;
+
+    scanline: Scanline;
 
     // globals
     w: number;
@@ -16,18 +24,14 @@ export class Game {
     bgColor: string;
     collisionOffset: number;
 
-    // world map
-    layer: number;
-    cells: number;
-
     player: Player;
+
     enemies: Array<Enemy>;
-    enemyIds: number;
 
     gems: Array<Gem>;
     gemIds: number;
 
-    scanline: Scanline;
+    activeWave: number;
 
     constructor() {
         this.canvas = document.getElementById("canvas") as HTMLCanvasElement;
@@ -41,29 +45,32 @@ export class Game {
         this.layer = 6;
         this.cells = 16;
 
-        this.player = new Player(0, this.ctx, this.layer, 0, this.w, this.h);
+        this.scanline = new Scanline(this.ctx, this.w, this.h);
+
+        // init globals
+        this.activeWave = 0;
+
+        this.player = new Player(0, this.ctx, this.layer, 0, this.w, this.h, PATTERN.waves[this.activeWave].win);
 
         this.enemies = new Array<Enemy>();
-        this.enemyIds = 0;
-        for (let i = 0; i < 10; i++) {
-            this.enemies.push(new Enemy(this.enemyIds++, this.ctx, this.layer, this.w, this.h));
+        for (const enemyData of PATTERN.waves[this.activeWave].enemys) {
+            this.enemies.push(new Enemy(enemyData.id, this.ctx, this.w, this.h, enemyData.ring, enemyData.angle, enemyData.speed, enemyData.delay));
         }
 
         this.gems = new Array<Gem>();
-        this.gemIds = 0;
-        for (let i = 0; i < 10; i++) {
-            this.gems.push(new Gem(this.gemIds++, this.ctx, this.layer, this.w, this.h));
+        for (const gemData of PATTERN.waves[this.activeWave].gems) {
+            this.gems.push(new Gem(gemData.id, this.ctx, this.w, this.h, gemData.type, gemData.ring, gemData.angle, gemData.speed, gemData.delay));
         }
 
-        this.scanline = new Scanline(this.ctx, this.w, this.h);
-
+        // gameloop
         this.update = this.update.bind(this);
         window.requestAnimationFrame(this.update);
     }   
 
     update() {
         this.scanline.update();
-
+        
+        // update enemies
         for (let i = 0; i < this.enemies.length; i++) {
             this.enemies[i].update();
 
@@ -72,6 +79,7 @@ export class Game {
             }
         }
 
+        // update gems
         for (let i = 0; i < this.gems.length; i++) {
             this.gems[i].update();
 
@@ -80,32 +88,37 @@ export class Game {
             }
         }
 
+        // update player
         this.player.update();
 
+        if (this.player.checkGoals()) {
+            this.advanceWave();
+        }
+
+        // player enemy collision
         for (let j = 0; j < this.enemies.length; j++) {
             if (this.player.pos === this.enemies[j].layer) {
                 if (Math.abs(this.player.axisPool[this.player.axis] - this.enemies[j].angle) < this.collisionOffset) {                        
                     this.player.health--;
 
                     this.enemies = this.enemies.filter((e) => e !== this.enemies[j]);
-                    this.enemies.push(new Enemy(this.enemyIds++, this.ctx, this.layer, this.w, this.h));
                 }
             }
         }
 
+        // player gem collision
         for (let j = 0; j < this.gems.length; j++) {
             if (this.player.pos === this.gems[j].layer) {
                 if (Math.abs(this.player.axisPool[this.player.axis] - this.gems[j].angle) < this.collisionOffset) {                        
-                    this.player.score++;
+                    this.player.collectGem(this.gems[j].type);
 
                     this.gems = this.gems.filter((e) => e !== this.gems[j]);
-                    this.gems.push(new Gem(this.gemIds++, this.ctx, this.layer, this.w, this.h));
                 }
             }
         }
 
         if (this.player.health < 0) {
-            this.resetGame();
+            this.resetWave();
         }
 
         this.draw();
@@ -130,9 +143,13 @@ export class Game {
 
         this.player.render();
 
-        this.ctx.font = "18px sans-serif";
-        this.ctx.fillStyle = "#F28963";
-        this.ctx.fillText(this.player.score.toString(), 30, 40);
+        this.ctx.font = "13px sans-serif";
+        this.ctx.fillStyle = "rgb(199, 191, 65)";
+        this.ctx.fillText(`${this.player.green.toString()} | ${this.player.greenGoal.toString()}`, 30, 40);
+        this.ctx.fillStyle = "rgb(0, 90, 127)";
+        this.ctx.fillText(`${this.player.blue.toString()} | ${this.player.blueGoal.toString()}`, 30, 60);
+        this.ctx.fillStyle = "rgb(255, 199, 54)";
+        this.ctx.fillText(`${this.player.yellow.toString()} | ${this.player.yellowGoal.toString()}`, 30, 80);
     }
 
     drawBoard() {
@@ -175,8 +192,26 @@ export class Game {
         }
     }
 
-    resetGame() {
-        this.player.health = this.player.maxHealth;
-        this.player.score = 0;
+    resetWave() {
+        this.player.reset();
     }
+
+    advanceWave() {
+        this.player.reset();
+        this.activeWave++;
+        // set new player goals
+        this.player.setGoals(PATTERN.waves[this.activeWave].win);
+
+        // new enemies
+        for (const enemyData of PATTERN.waves[this.activeWave].enemys) {
+            this.enemies.push(new Enemy(enemyData.id, this.ctx, this.w, this.h, enemyData.ring, enemyData.angle, enemyData.speed, enemyData.delay));
+        }
+
+        // new gems
+        for (const gemData of PATTERN.waves[this.activeWave].gems) {
+            this.gems.push(new Gem(gemData.id, this.ctx, this.w, this.h, gemData.type, gemData.ring, gemData.angle, gemData.speed, gemData.delay));
+        }
+    }
+
+    
 }

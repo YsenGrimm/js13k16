@@ -10,11 +10,15 @@ export enum GemType {
 
 export class Gem {
 
+    // default
     id: number;
     ctx: CanvasRenderingContext2D;
 
+    w: number;
+    h: number;
+
+    // other
     layer: number;
-    maxLayer: number;
 
     angle: number;
 
@@ -25,59 +29,67 @@ export class Gem {
 
     speed: number;
 
-    realPos: number;
-    alpha: number;
-    fade: number;
-    fadeDelay: number;
-
-    w: number;
-    h: number;
+    delay: number;
 
     type: GemType;
 
-    constructor(id: number, ctx: CanvasRenderingContext2D, layer: number, width: number, height: number) {
+    realPos: number;
+    alpha: number;
+    fade: number;
+    fadeDelay: number;    
+
+    constructor(id: number, ctx: CanvasRenderingContext2D, width: number, height: number, 
+                type: string, layer: number, angle: number, speed: number, delay: number) {
         this.id = id;
         this.ctx = ctx;
 
-        this.layer = Utils.getRandomInt(0, 5);
-        this.maxLayer = layer - 1;
+        this.w = width;
+        this.h = height;
 
-        this.angle = Utils.getRandomArbitrary(0, 360);
+        // other
+        this.layer = layer;
+
+        this.angle = angle;
 
         this.minOffset = 64;
         this.offset = 30;
 
         this.size = 14;
 
-        this.speed = Utils.getRandomArbitrary(1, 4);
+        this.speed = speed;
 
-        this.realPos = this.minOffset + this.offset * this.layer;
-        this.alpha = 1;
-        this.fade = 0.006;
-        this.fadeDelay = this.speed * 2;
+        this.delay = delay;
 
-        this.w = width;
-        this.h = height;
-
-        switch (Utils.getRandomInt(0, GemType.size-1)) {
-            case 0:
+        switch (type) {
+            case "green":
                 this.type = GemType.G;
                 break;
             
-            case 1:
+            case "blue":
                 this.type = GemType.B;
                 break;
             
-            case 2:
+            case "yellow":
                 this.type = GemType.Y;
                 break;
 
             default:
                 this.type = GemType.G;
         }
+
+        this.realPos = this.minOffset + this.offset * this.layer;
+        this.alpha = 1;
+        this.fade = 0.006;
+        this.fadeDelay = this.speed * 2;
     }
 
     update(): void {
+        if (this.delay > 0) {
+            // 1 frame ~ 16.666 ms at 60 fps
+            this.delay -= 16;
+            return;
+        }
+
         this.angle += this.speed;
         this.angle %= 360;
 
@@ -93,7 +105,7 @@ export class Gem {
     }
 
     render(): void {
-        // this.ctx.fillStyle = `rgba(217, 91, 91, ${this.alpha})`;
+        if (this.delay > 0) { return; }
 
         switch (this.type) {
             case GemType.G:

@@ -1,5 +1,7 @@
 import { Utils } from "./utils";
 
+import { GemType } from "./gem";
+
 export class Player {
 
     id: number;
@@ -20,12 +22,21 @@ export class Player {
     width: number;
     height: number;
 
-    score: number;
-
     health: number;
     maxHealth: number;
 
-    constructor(id: number, ctx: CanvasRenderingContext2D, layer: number, startAxis: number, gameWidth: number, gameHeigth: number) {
+    // gems goal
+    green: number;
+    greenGoal: number;
+
+    blue: number;
+    blueGoal: number;
+
+    yellow: number;
+    yellowGoal: number;
+
+    constructor(id: number, ctx: CanvasRenderingContext2D, layer: number, startAxis: number, gameWidth: number, gameHeigth: 
+                number, goal: {green: number, blue: number, yellow: number}) {
         this.id = id;
         this.ctx = ctx;
         this.color = "rgb(242, 214, 128)";
@@ -45,11 +56,18 @@ export class Player {
         this.width = 30;
         this.height = 4;
 
-        this.score = 0;
-
         this.maxHealth = 3;
         this.health = this.maxHealth;
 
+        // gems goal
+        this.green = 0;
+        this.greenGoal = goal.green;
+        
+        this.blue = 0;
+        this.blueGoal = goal.blue;
+
+        this.yellow = 0;
+        this.yellowGoal = goal.yellow;
 
         document.addEventListener("keydown", e => this.handleInput(e));
     }
@@ -113,7 +131,7 @@ export class Player {
         }
     }
 
-    update() : void {
+    update(): void {
         
     }
 
@@ -127,6 +145,38 @@ export class Player {
             this.ctx.fillRect((Math.cos(Utils.deg2rad(this.axisPool[this.axis])) * (1 + this.minOffset + this.offset * this.pos)) + this.gameWidth/2 - this.height/2,
                                 (Math.sin(Utils.deg2rad(this.axisPool[this.axis])) * (this.minOffset + this.offset * this.pos)) + this.gameHeigth/2 - this.width/2, this.height, this.width);
         }
+    }
+
+    collectGem(gem: GemType): void {
+        switch (gem) {
+            case GemType.G:
+                this.green++;
+                break;
+            case GemType.B:
+                this.blue++;
+                break;
+            case GemType.Y:
+                this.yellow++;
+                break;
+        }
+    }
+
+    checkGoals(): boolean {
+        return (this.green === this.greenGoal && this.blue === this.blueGoal && this.yellow === this.yellowGoal);
+    }
+
+    reset(): void {
+        this.health = this.maxHealth;
+
+        this.green = 0;
+        this.blue = 0;
+        this.yellow = 0;
+    }
+
+    setGoals(goal: {green: number, blue: number, yellow: number}): void {
+        this.greenGoal = goal.green;
+        this.blueGoal = goal.blue;
+        this.yellowGoal = goal.yellow;
     }
 
 }

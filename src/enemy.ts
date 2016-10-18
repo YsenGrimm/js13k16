@@ -2,11 +2,16 @@ import { Utils } from "./utils";
 
 export class Enemy {
 
+    // default
+
     id: number;
     ctx: CanvasRenderingContext2D;
 
+    w: number;
+    h: number;
+
+    // other
     layer: number;
-    maxLayer: number;
 
     angle: number;
 
@@ -17,40 +22,47 @@ export class Enemy {
 
     speed: number;
 
+    delay: number;
+
     realPos: number;
     alpha: number;
     fade: number;
     fadeDelay: number;
 
-    w: number;
-    h: number;
-
-    constructor(id: number, ctx: CanvasRenderingContext2D, layer: number, width: number, height: number) {
+    constructor(id: number, ctx: CanvasRenderingContext2D, width: number, height: number, layer: number, angle: number, speed: number, delay: number) {
         this.id = id;
         this.ctx = ctx;
 
-        this.layer = Utils.getRandomInt(0, 5);
-        this.maxLayer = layer - 1;
+        this.w = width;
+        this.h = height;
 
-        this.angle = Utils.getRandomArbitrary(0, 360);
+        // other
+        this.layer = layer;
+
+        this.angle = angle;
 
         this.minOffset = 64;
         this.offset = 30;
 
         this.size = 6;
 
-        this.speed = Utils.getRandomArbitrary(1, 4);
+        this.speed = speed;
+
+        this.delay = delay;
 
         this.realPos = this.minOffset + this.offset * this.layer;
         this.alpha = 1;
         this.fade = 0.006;
         this.fadeDelay = this.speed * 2;
-
-        this.w = width;
-        this.h = height;
     }
 
     update(): void {
+        if (this.delay > 0) {
+            // 1 frame ~ 16.666 ms at 60 fps
+            this.delay -= 16;
+            return;
+        } 
+
         this.angle += this.speed;
         this.angle %= 360;
 
@@ -66,6 +78,8 @@ export class Enemy {
     }
 
     render(): void {
+        if (this.delay > 0) { return; }
+
         this.ctx.fillStyle = `rgba(217, 91, 91, ${this.alpha})`;
 
         this.ctx.beginPath();
