@@ -37,7 +37,7 @@ export class Game {
     stats: Stats;
 
     constructor() {
-        this.canvas = document.getElementById("canvas") as HTMLCanvasElement;
+        this.canvas = document.getElementById("game") as HTMLCanvasElement;
         this.ctx = this.canvas.getContext("2d", {alpha: false});
         this.ctx.translate(0.5, 0.5);
 
@@ -150,14 +150,6 @@ export class Game {
         this.player.render();
 
         this.stats.render();
-
-        this.ctx.font = "13px sans-serif";
-        this.ctx.fillStyle = "rgb(199, 191, 65)";
-        this.ctx.fillText(`${this.player.green.toString()} | ${this.player.greenGoal.toString()}`, 30, 40);
-        this.ctx.fillStyle = "rgb(0, 90, 127)";
-        this.ctx.fillText(`${this.player.blue.toString()} | ${this.player.blueGoal.toString()}`, 30, 60);
-        this.ctx.fillStyle = "rgb(255, 199, 54)";
-        this.ctx.fillText(`${this.player.yellow.toString()} | ${this.player.yellowGoal.toString()}`, 30, 80);
     }
 
     drawBoard() {
@@ -179,14 +171,6 @@ export class Game {
         this.ctx.beginPath();
         this.ctx.arc(this.w/2, this.h/2, minR, 0, 2 * Math.PI);
         this.ctx.fill();
-
-        // draw center circle aka player health
-        // this.ctx.fillStyle = "#D95970";
-        // this.ctx.beginPath();
-        // this.ctx.lineTo(this.w/2 + minR, this.h/2);
-        // this.ctx.arc(this.w/2, this.h/2, minR, 0, (this.player.health / this.player.maxHealth) * 2 * Math.PI, false);
-        // this.ctx.lineTo(this.w/2, this.h/2);
-        // this.ctx.fill();
     }
 
     drawDebugLines() {
