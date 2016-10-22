@@ -54,44 +54,99 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var player_1 = __webpack_require__(2);
-	var enemy_1 = __webpack_require__(5);
-	var scanline_1 = __webpack_require__(6);
-	var utils_1 = __webpack_require__(3);
-	var gem_1 = __webpack_require__(4);
-	var stats_1 = __webpack_require__(7);
-	var pattern_1 = __webpack_require__(8);
+	var ingame_1 = __webpack_require__(2);
+	var menu_1 = __webpack_require__(11);
+	var statemanager_1 = __webpack_require__(13);
+	var input_1 = __webpack_require__(5);
 	var Game = (function () {
 	    function Game() {
-	        this.canvas = document.getElementById("canvas");
+	        this.canvas = document.getElementById("game");
 	        this.ctx = this.canvas.getContext("2d", { alpha: false });
 	        this.ctx.translate(0.5, 0.5);
-	        this.w = 800;
-	        this.h = 480;
+	        this.inputManager = new input_1.Input();
+	        // Settings
+	        this.screenSize = { width: 800, height: 480 };
 	        this.bgColor = "#533B59";
-	        this.collisionOffset = 5;
-	        this.layer = 6;
-	        this.cells = 16;
-	        this.scanline = new scanline_1.Scanline(this.ctx, this.w, this.h);
-	        // init globals
-	        this.activeWave = 0;
-	        this.player = new player_1.Player(0, this.ctx, this.layer, 0, this.w, this.h, pattern_1.PATTERN.waves[this.activeWave].win);
-	        this.enemies = new Array();
-	        for (var _i = 0, _a = pattern_1.PATTERN.waves[this.activeWave].enemys; _i < _a.length; _i++) {
-	            var enemyData = _a[_i];
-	            this.enemies.push(new enemy_1.Enemy(enemyData.id, this.ctx, this.w, this.h, enemyData.ring, enemyData.angle, enemyData.speed, enemyData.delay));
-	        }
-	        this.gems = new Array();
-	        for (var _b = 0, _c = pattern_1.PATTERN.waves[this.activeWave].gems; _b < _c.length; _b++) {
-	            var gemData = _c[_b];
-	            this.gems.push(new gem_1.Gem(gemData.id, this.ctx, this.w, this.h, gemData.type, gemData.ring, gemData.angle, gemData.speed, gemData.delay));
-	        }
-	        this.stats = new stats_1.Stats(this.ctx, this.player, { x: 0, y: 0, width: this.w, height: this.h });
+	        // States
+	        this.stateManager = new statemanager_1.StateManager(statemanager_1.States.MENU);
+	        this.ingame = new ingame_1.Ingame(this.ctx, this.inputManager, this.screenSize, this.bgColor);
+	        this.menu = new menu_1.Menu(this.ctx, this.inputManager, this.screenSize, this.bgColor, this.stateManager);
 	        // gameloop
 	        this.update = this.update.bind(this);
 	        window.requestAnimationFrame(this.update);
 	    }
 	    Game.prototype.update = function () {
+	        switch (this.stateManager.activeState) {
+	            case statemanager_1.States.GAME:
+	                this.ingame.update();
+	                break;
+	            case statemanager_1.States.MENU:
+	                this.menu.update();
+	                break;
+	            case statemanager_1.States.SCORE:
+	                break;
+	        }
+	        this.draw();
+	        window.requestAnimationFrame(this.update);
+	    };
+	    Game.prototype.draw = function () {
+	        this.ctx.fillStyle = this.bgColor;
+	        this.ctx.fillRect(0, 0, this.screenSize.width, this.screenSize.height);
+	        switch (this.stateManager.activeState) {
+	            case statemanager_1.States.GAME:
+	                this.ingame.render();
+	                break;
+	            case statemanager_1.States.MENU:
+	                this.menu.render();
+	                break;
+	            case statemanager_1.States.SCORE:
+	                break;
+	        }
+	    };
+	    return Game;
+	}());
+	exports.Game = Game;
+
+
+/***/ },
+/* 2 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var player_1 = __webpack_require__(3);
+	var enemy_1 = __webpack_require__(7);
+	var scanline_1 = __webpack_require__(8);
+	var utils_1 = __webpack_require__(4);
+	var gem_1 = __webpack_require__(6);
+	var stats_1 = __webpack_require__(9);
+	var pattern_1 = __webpack_require__(10);
+	var Ingame = (function () {
+	    function Ingame(ctx, inputManager, screenSize, bgColor) {
+	        this.ctx = ctx;
+	        this.inputManager = inputManager;
+	        // global settings
+	        this.screenSize = screenSize;
+	        this.bgColor = bgColor;
+	        this.collisionOffset = 5;
+	        // board settings
+	        this.layer = 6;
+	        this.cells = 16;
+	        this.activeWave = 0;
+	        this.player = new player_1.Player(0, this.ctx, this.inputManager, this.layer, 0, this.screenSize.width, this.screenSize.height, pattern_1.PATTERN.waves[this.activeWave].win);
+	        this.enemies = new Array();
+	        for (var _i = 0, _a = pattern_1.PATTERN.waves[this.activeWave].enemys; _i < _a.length; _i++) {
+	            var enemyData = _a[_i];
+	            this.enemies.push(new enemy_1.Enemy(enemyData.id, this.ctx, this.screenSize.width, this.screenSize.height, enemyData.ring, enemyData.angle, enemyData.speed, enemyData.delay));
+	        }
+	        this.gems = new Array();
+	        for (var _b = 0, _c = pattern_1.PATTERN.waves[this.activeWave].gems; _b < _c.length; _b++) {
+	            var gemData = _c[_b];
+	            this.gems.push(new gem_1.Gem(gemData.id, this.ctx, this.screenSize.width, this.screenSize.height, gemData.type, gemData.ring, gemData.angle, gemData.speed, gemData.delay));
+	        }
+	        this.scanline = new scanline_1.Scanline(this.ctx, this.screenSize.width, this.screenSize.height);
+	        this.stats = new stats_1.Stats(this.ctx, this.player, { width: this.screenSize.width, height: this.screenSize.height });
+	    }
+	    Ingame.prototype.update = function () {
 	        var _this = this;
 	        this.scanline.update();
 	        // update enemies
@@ -142,12 +197,9 @@
 	        if (this.player.health < 0) {
 	            this.resetWave();
 	        }
-	        this.draw();
-	        window.requestAnimationFrame(this.update);
+	        this.inputManager.update();
 	    };
-	    Game.prototype.draw = function () {
-	        this.ctx.fillStyle = this.bgColor;
-	        this.ctx.fillRect(0, 0, this.w, this.h);
+	    Ingame.prototype.render = function () {
 	        this.drawBoard();
 	        this.scanline.render();
 	        for (var i = 0; i < this.enemies.length; i++) {
@@ -158,52 +210,34 @@
 	        }
 	        this.player.render();
 	        this.stats.render();
-	        this.ctx.font = "13px sans-serif";
-	        this.ctx.fillStyle = "rgb(199, 191, 65)";
-	        this.ctx.fillText(this.player.green.toString() + " | " + this.player.greenGoal.toString(), 30, 40);
-	        this.ctx.fillStyle = "rgb(0, 90, 127)";
-	        this.ctx.fillText(this.player.blue.toString() + " | " + this.player.blueGoal.toString(), 30, 60);
-	        this.ctx.fillStyle = "rgb(255, 199, 54)";
-	        this.ctx.fillText(this.player.yellow.toString() + " | " + this.player.yellowGoal.toString(), 30, 80);
 	    };
-	    Game.prototype.drawBoard = function () {
+	    Ingame.prototype.drawBoard = function () {
 	        this.ctx.strokeStyle = "#D95970";
 	        var minR = 50;
 	        var scaleR = 30;
 	        for (var i = 0; i < this.layer + 1; i++) {
 	            this.ctx.beginPath();
-	            this.ctx.arc(this.w / 2, this.h / 2, minR + scaleR * i, 0, Math.PI * 2);
+	            this.ctx.arc(this.screenSize.width / 2, this.screenSize.height / 2, minR + scaleR * i, 0, Math.PI * 2);
 	            this.ctx.stroke();
 	        }
-	        this.drawDebugLines();
-	        // clear center circle
-	        this.ctx.fillStyle = "#D95970";
-	        // this.ctx.fillStyle = this.bgColor;
-	        this.ctx.beginPath();
-	        this.ctx.arc(this.w / 2, this.h / 2, minR, 0, 2 * Math.PI);
-	        this.ctx.fill();
-	        // draw center circle aka player health
-	        // this.ctx.fillStyle = "#D95970";
-	        // this.ctx.beginPath();
-	        // this.ctx.lineTo(this.w/2 + minR, this.h/2);
-	        // this.ctx.arc(this.w/2, this.h/2, minR, 0, (this.player.health / this.player.maxHealth) * 2 * Math.PI, false);
-	        // this.ctx.lineTo(this.w/2, this.h/2);
-	        // this.ctx.fill();
-	    };
-	    Game.prototype.drawDebugLines = function () {
 	        this.ctx.strokeStyle = "#D95970";
 	        var slice = 360 / this.cells;
 	        for (var i = 0; i < this.cells; i++) {
 	            this.ctx.beginPath();
-	            this.ctx.moveTo(this.w / 2, this.h / 2);
-	            this.ctx.lineTo((Math.cos(utils_1.Utils.deg2rad(i * slice)) * 230) + this.w / 2, (Math.sin(utils_1.Utils.deg2rad(i * slice)) * 230) + this.h / 2);
+	            this.ctx.moveTo(this.screenSize.width / 2, this.screenSize.height / 2);
+	            this.ctx.lineTo((Math.cos(utils_1.Utils.deg2rad(i * slice)) * 230) + this.screenSize.width / 2, (Math.sin(utils_1.Utils.deg2rad(i * slice)) * 230) + this.screenSize.height / 2);
 	            this.ctx.stroke();
 	        }
+	        // fill center circle
+	        this.ctx.fillStyle = "#D95970";
+	        this.ctx.beginPath();
+	        this.ctx.arc(this.screenSize.width / 2, this.screenSize.height / 2, minR, 0, 2 * Math.PI);
+	        this.ctx.fill();
 	    };
-	    Game.prototype.resetWave = function () {
+	    Ingame.prototype.resetWave = function () {
 	        this.player.reset();
 	    };
-	    Game.prototype.advanceWave = function () {
+	    Ingame.prototype.advanceWave = function () {
 	        this.player.reset();
 	        this.activeWave++;
 	        // set new player goals
@@ -211,29 +245,30 @@
 	        // new enemies
 	        for (var _i = 0, _a = pattern_1.PATTERN.waves[this.activeWave].enemys; _i < _a.length; _i++) {
 	            var enemyData = _a[_i];
-	            this.enemies.push(new enemy_1.Enemy(enemyData.id, this.ctx, this.w, this.h, enemyData.ring, enemyData.angle, enemyData.speed, enemyData.delay));
+	            this.enemies.push(new enemy_1.Enemy(enemyData.id, this.ctx, this.screenSize.width, this.screenSize.height, enemyData.ring, enemyData.angle, enemyData.speed, enemyData.delay));
 	        }
 	        // new gems
 	        for (var _b = 0, _c = pattern_1.PATTERN.waves[this.activeWave].gems; _b < _c.length; _b++) {
 	            var gemData = _c[_b];
-	            this.gems.push(new gem_1.Gem(gemData.id, this.ctx, this.w, this.h, gemData.type, gemData.ring, gemData.angle, gemData.speed, gemData.delay));
+	            this.gems.push(new gem_1.Gem(gemData.id, this.ctx, this.screenSize.width, this.screenSize.height, gemData.type, gemData.ring, gemData.angle, gemData.speed, gemData.delay));
 	        }
 	    };
-	    return Game;
+	    return Ingame;
 	}());
-	exports.Game = Game;
+	exports.Ingame = Ingame;
 
 
 /***/ },
-/* 2 */
+/* 3 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var utils_1 = __webpack_require__(3);
-	var gem_1 = __webpack_require__(4);
+	var utils_1 = __webpack_require__(4);
+	var input_1 = __webpack_require__(5);
+	var gem_1 = __webpack_require__(6);
 	var Player = (function () {
-	    function Player(id, ctx, layer, startAxis, gameWidth, gameHeigth, goal) {
-	        var _this = this;
+	    function Player(id, ctx, inputManager, layer, startAxis, gameWidth, gameHeigth, goal) {
+	        this.inputMarager = inputManager;
 	        this.id = id;
 	        this.ctx = ctx;
 	        this.color = "rgb(242, 214, 128)";
@@ -246,7 +281,7 @@
 	        this.gameWidth = gameWidth;
 	        this.gameHeigth = gameHeigth;
 	        this.size = 6;
-	        this.width = 30;
+	        this.width = 28;
 	        this.height = 4;
 	        this.maxHealth = 3;
 	        this.health = this.maxHealth;
@@ -257,73 +292,135 @@
 	        this.blueGoal = goal.blue;
 	        this.yellow = 0;
 	        this.yellowGoal = goal.yellow;
-	        document.addEventListener("keydown", function (e) { return _this.handleInput(e); });
 	    }
-	    Player.prototype.handleInput = function (e) {
+	    Player.prototype.update = function () {
 	        switch (this.id) {
 	            case 0:
-	                if (e.key === "ArrowLeft") {
-	                    this.pos--;
-	                    if (this.pos < 0) {
-	                        this.pos = 0;
+	                // right
+	                if (this.axisPool[this.axis] === 0) {
+	                    if (this.inputMarager.justPressed(input_1.KeyCode.LEFT_ARROW)) {
+	                        this.pos--;
+	                        if (this.pos < 0) {
+	                            this.pos = 0;
+	                        }
+	                    }
+	                    if (this.inputMarager.justPressed(input_1.KeyCode.RIGHT_ARROW)) {
+	                        this.pos++;
+	                        if (this.pos > this.maxPos) {
+	                            this.pos = this.maxPos;
+	                        }
+	                    }
+	                    if (this.inputMarager.justPressed(input_1.KeyCode.UP_ARROW)) {
+	                        this.axis--;
+	                        if (this.axis < 0) {
+	                            this.axis = 3;
+	                        }
+	                    }
+	                    if (this.inputMarager.justPressed(input_1.KeyCode.DOWN_ARROW)) {
+	                        this.axis++;
+	                        if (this.axis > 3) {
+	                            this.axis = 0;
+	                        }
 	                    }
 	                }
-	                if (e.key === "ArrowRight") {
-	                    this.pos++;
-	                    if (this.pos > this.maxPos) {
-	                        this.pos = this.maxPos;
+	                // bottom
+	                if (this.axisPool[this.axis] === 90) {
+	                    if (this.inputMarager.justPressed(input_1.KeyCode.UP_ARROW)) {
+	                        this.pos--;
+	                        if (this.pos < 0) {
+	                            this.pos = 0;
+	                        }
+	                    }
+	                    if (this.inputMarager.justPressed(input_1.KeyCode.DOWN_ARROW)) {
+	                        this.pos++;
+	                        if (this.pos > this.maxPos) {
+	                            this.pos = this.maxPos;
+	                        }
+	                    }
+	                    if (this.inputMarager.justPressed(input_1.KeyCode.RIGHT_ARROW)) {
+	                        this.axis--;
+	                        if (this.axis < 0) {
+	                            this.axis = 3;
+	                        }
+	                    }
+	                    if (this.inputMarager.justPressed(input_1.KeyCode.LEFT_ARROW)) {
+	                        this.axis++;
+	                        if (this.axis > 3) {
+	                            this.axis = 0;
+	                        }
 	                    }
 	                }
-	                if (e.key === "ArrowUp") {
-	                    this.axis--;
-	                    if (this.axis < 0) {
-	                        this.axis = 3;
+	                // left
+	                if (this.axisPool[this.axis] === 180) {
+	                    if (this.inputMarager.justPressed(input_1.KeyCode.RIGHT_ARROW)) {
+	                        this.pos--;
+	                        if (this.pos < 0) {
+	                            this.pos = 0;
+	                        }
+	                    }
+	                    if (this.inputMarager.justPressed(input_1.KeyCode.LEFT_ARROW)) {
+	                        this.pos++;
+	                        if (this.pos > this.maxPos) {
+	                            this.pos = this.maxPos;
+	                        }
+	                    }
+	                    if (this.inputMarager.justPressed(input_1.KeyCode.DOWN_ARROW)) {
+	                        this.axis--;
+	                        if (this.axis < 0) {
+	                            this.axis = 3;
+	                        }
+	                    }
+	                    if (this.inputMarager.justPressed(input_1.KeyCode.UP_ARROW)) {
+	                        this.axis++;
+	                        if (this.axis > 3) {
+	                            this.axis = 0;
+	                        }
 	                    }
 	                }
-	                if (e.key === "ArrowDown") {
-	                    this.axis++;
-	                    if (this.axis > 3) {
-	                        this.axis = 0;
+	                // top
+	                if (this.axisPool[this.axis] === 270) {
+	                    if (this.inputMarager.justPressed(input_1.KeyCode.DOWN_ARROW)) {
+	                        this.pos--;
+	                        if (this.pos < 0) {
+	                            this.pos = 0;
+	                        }
 	                    }
-	                }
-	                break;
-	            case 1:
-	                if (e.key === "a") {
-	                    this.pos--;
-	                    if (this.pos < 0) {
-	                        this.pos = 0;
+	                    if (this.inputMarager.justPressed(input_1.KeyCode.UP_ARROW)) {
+	                        this.pos++;
+	                        if (this.pos > this.maxPos) {
+	                            this.pos = this.maxPos;
+	                        }
 	                    }
-	                }
-	                if (e.key === "d") {
-	                    this.pos++;
-	                    if (this.pos > this.maxPos) {
-	                        this.pos = this.maxPos;
+	                    if (this.inputMarager.justPressed(input_1.KeyCode.LEFT_ARROW)) {
+	                        this.axis--;
+	                        if (this.axis < 0) {
+	                            this.axis = 3;
+	                        }
 	                    }
-	                }
-	                if (e.key === "w") {
-	                    this.axis--;
-	                    if (this.axis < 0) {
-	                        this.axis = 3;
-	                    }
-	                }
-	                if (e.key === "s") {
-	                    this.axis++;
-	                    if (this.axis > 3) {
-	                        this.axis = 0;
+	                    if (this.inputMarager.justPressed(input_1.KeyCode.RIGHT_ARROW)) {
+	                        this.axis++;
+	                        if (this.axis > 3) {
+	                            this.axis = 0;
+	                        }
 	                    }
 	                }
 	                break;
 	        }
-	    };
-	    Player.prototype.update = function () {
 	    };
 	    Player.prototype.render = function () {
 	        this.ctx.fillStyle = this.color;
+	        this.ctx.strokeStyle = this.color;
 	        if (Math.abs(Math.cos(utils_1.Utils.deg2rad(this.axisPool[this.axis]))) > 0.5) {
-	            this.ctx.fillRect((Math.cos(utils_1.Utils.deg2rad(this.axisPool[this.axis])) * (1 + this.minOffset + this.offset * this.pos)) + this.gameWidth / 2 - this.width / 2, (Math.sin(utils_1.Utils.deg2rad(this.axisPool[this.axis])) * (this.minOffset + this.offset * this.pos)) + this.gameHeigth / 2 - this.height / 2, this.width, this.height);
+	            var posx = (Math.cos(utils_1.Utils.deg2rad(this.axisPool[this.axis])) * (1 + this.minOffset + this.offset * this.pos)) + this.gameWidth / 2 - this.width / 2;
+	            var posy = (Math.sin(utils_1.Utils.deg2rad(this.axisPool[this.axis])) * (this.minOffset + this.offset * this.pos)) + this.gameHeigth / 2 - this.height / 2;
+	            this.ctx.strokeRect(posx, posy, this.width, this.height);
+	            this.ctx.fillRect(posx, posy, this.width, this.height);
 	        }
 	        else {
-	            this.ctx.fillRect((Math.cos(utils_1.Utils.deg2rad(this.axisPool[this.axis])) * (1 + this.minOffset + this.offset * this.pos)) + this.gameWidth / 2 - this.height / 2, (Math.sin(utils_1.Utils.deg2rad(this.axisPool[this.axis])) * (this.minOffset + this.offset * this.pos)) + this.gameHeigth / 2 - this.width / 2, this.height, this.width);
+	            var posx = (Math.cos(utils_1.Utils.deg2rad(this.axisPool[this.axis])) * (1 + this.minOffset + this.offset * this.pos)) + this.gameWidth / 2 - this.height / 2;
+	            var posy = (Math.sin(utils_1.Utils.deg2rad(this.axisPool[this.axis])) * (1 + this.minOffset + this.offset * this.pos)) + this.gameHeigth / 2 - this.width / 2;
+	            this.ctx.strokeRect(posx, posy, this.height, this.width);
+	            this.ctx.fillRect(posx, posy, this.height, this.width);
 	        }
 	    };
 	    Player.prototype.collectGem = function (gem) {
@@ -359,7 +456,7 @@
 
 
 /***/ },
-/* 3 */
+/* 4 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -384,11 +481,160 @@
 
 
 /***/ },
-/* 4 */
+/* 5 */
+/***/ function(module, exports) {
+
+	"use strict";
+	(function (KeyCode) {
+	    KeyCode[KeyCode["BACKSPACE"] = 8] = "BACKSPACE";
+	    KeyCode[KeyCode["TAB"] = 9] = "TAB";
+	    KeyCode[KeyCode["ENTER"] = 13] = "ENTER";
+	    KeyCode[KeyCode["SHIFT"] = 16] = "SHIFT";
+	    KeyCode[KeyCode["CTRL"] = 17] = "CTRL";
+	    KeyCode[KeyCode["ALT"] = 18] = "ALT";
+	    KeyCode[KeyCode["PAUSE"] = 19] = "PAUSE";
+	    KeyCode[KeyCode["CAPS_LOCK"] = 20] = "CAPS_LOCK";
+	    KeyCode[KeyCode["ESCAPE"] = 27] = "ESCAPE";
+	    KeyCode[KeyCode["SPACE"] = 32] = "SPACE";
+	    KeyCode[KeyCode["PAGE_UP"] = 33] = "PAGE_UP";
+	    KeyCode[KeyCode["PAGE_DOWN"] = 34] = "PAGE_DOWN";
+	    KeyCode[KeyCode["END"] = 35] = "END";
+	    KeyCode[KeyCode["HOME"] = 36] = "HOME";
+	    KeyCode[KeyCode["LEFT_ARROW"] = 37] = "LEFT_ARROW";
+	    KeyCode[KeyCode["UP_ARROW"] = 38] = "UP_ARROW";
+	    KeyCode[KeyCode["RIGHT_ARROW"] = 39] = "RIGHT_ARROW";
+	    KeyCode[KeyCode["DOWN_ARROW"] = 40] = "DOWN_ARROW";
+	    KeyCode[KeyCode["INSERT"] = 45] = "INSERT";
+	    KeyCode[KeyCode["DELETE"] = 46] = "DELETE";
+	    KeyCode[KeyCode["KEY_0"] = 48] = "KEY_0";
+	    KeyCode[KeyCode["KEY_1"] = 49] = "KEY_1";
+	    KeyCode[KeyCode["KEY_2"] = 50] = "KEY_2";
+	    KeyCode[KeyCode["KEY_3"] = 51] = "KEY_3";
+	    KeyCode[KeyCode["KEY_4"] = 52] = "KEY_4";
+	    KeyCode[KeyCode["KEY_5"] = 53] = "KEY_5";
+	    KeyCode[KeyCode["KEY_6"] = 54] = "KEY_6";
+	    KeyCode[KeyCode["KEY_7"] = 55] = "KEY_7";
+	    KeyCode[KeyCode["KEY_8"] = 56] = "KEY_8";
+	    KeyCode[KeyCode["KEY_9"] = 57] = "KEY_9";
+	    KeyCode[KeyCode["A"] = 65] = "A";
+	    KeyCode[KeyCode["B"] = 66] = "B";
+	    KeyCode[KeyCode["C"] = 67] = "C";
+	    KeyCode[KeyCode["D"] = 68] = "D";
+	    KeyCode[KeyCode["E"] = 69] = "E";
+	    KeyCode[KeyCode["F"] = 70] = "F";
+	    KeyCode[KeyCode["G"] = 71] = "G";
+	    KeyCode[KeyCode["H"] = 72] = "H";
+	    KeyCode[KeyCode["I"] = 73] = "I";
+	    KeyCode[KeyCode["J"] = 74] = "J";
+	    KeyCode[KeyCode["K"] = 75] = "K";
+	    KeyCode[KeyCode["L"] = 76] = "L";
+	    KeyCode[KeyCode["M"] = 77] = "M";
+	    KeyCode[KeyCode["N"] = 78] = "N";
+	    KeyCode[KeyCode["O"] = 79] = "O";
+	    KeyCode[KeyCode["P"] = 80] = "P";
+	    KeyCode[KeyCode["Q"] = 81] = "Q";
+	    KeyCode[KeyCode["R"] = 82] = "R";
+	    KeyCode[KeyCode["S"] = 83] = "S";
+	    KeyCode[KeyCode["T"] = 84] = "T";
+	    KeyCode[KeyCode["U"] = 85] = "U";
+	    KeyCode[KeyCode["V"] = 86] = "V";
+	    KeyCode[KeyCode["W"] = 87] = "W";
+	    KeyCode[KeyCode["X"] = 88] = "X";
+	    KeyCode[KeyCode["Y"] = 89] = "Y";
+	    KeyCode[KeyCode["Z"] = 90] = "Z";
+	    KeyCode[KeyCode["LEFT_META"] = 91] = "LEFT_META";
+	    KeyCode[KeyCode["RIGHT_META"] = 92] = "RIGHT_META";
+	    KeyCode[KeyCode["SELECT"] = 93] = "SELECT";
+	    KeyCode[KeyCode["NUMPAD_0"] = 96] = "NUMPAD_0";
+	    KeyCode[KeyCode["NUMPAD_1"] = 97] = "NUMPAD_1";
+	    KeyCode[KeyCode["NUMPAD_2"] = 98] = "NUMPAD_2";
+	    KeyCode[KeyCode["NUMPAD_3"] = 99] = "NUMPAD_3";
+	    KeyCode[KeyCode["NUMPAD_4"] = 100] = "NUMPAD_4";
+	    KeyCode[KeyCode["NUMPAD_5"] = 101] = "NUMPAD_5";
+	    KeyCode[KeyCode["NUMPAD_6"] = 102] = "NUMPAD_6";
+	    KeyCode[KeyCode["NUMPAD_7"] = 103] = "NUMPAD_7";
+	    KeyCode[KeyCode["NUMPAD_8"] = 104] = "NUMPAD_8";
+	    KeyCode[KeyCode["NUMPAD_9"] = 105] = "NUMPAD_9";
+	    KeyCode[KeyCode["MULTIPLY"] = 106] = "MULTIPLY";
+	    KeyCode[KeyCode["ADD"] = 107] = "ADD";
+	    KeyCode[KeyCode["SUBTRACT"] = 109] = "SUBTRACT";
+	    KeyCode[KeyCode["DECIMAL"] = 110] = "DECIMAL";
+	    KeyCode[KeyCode["DIVIDE"] = 111] = "DIVIDE";
+	    KeyCode[KeyCode["F1"] = 112] = "F1";
+	    KeyCode[KeyCode["F2"] = 113] = "F2";
+	    KeyCode[KeyCode["F3"] = 114] = "F3";
+	    KeyCode[KeyCode["F4"] = 115] = "F4";
+	    KeyCode[KeyCode["F5"] = 116] = "F5";
+	    KeyCode[KeyCode["F6"] = 117] = "F6";
+	    KeyCode[KeyCode["F7"] = 118] = "F7";
+	    KeyCode[KeyCode["F8"] = 119] = "F8";
+	    KeyCode[KeyCode["F9"] = 120] = "F9";
+	    KeyCode[KeyCode["F10"] = 121] = "F10";
+	    KeyCode[KeyCode["F11"] = 122] = "F11";
+	    KeyCode[KeyCode["F12"] = 123] = "F12";
+	    KeyCode[KeyCode["NUM_LOCK"] = 144] = "NUM_LOCK";
+	    KeyCode[KeyCode["SCROLL_LOCK"] = 145] = "SCROLL_LOCK";
+	    KeyCode[KeyCode["SEMICOLON"] = 186] = "SEMICOLON";
+	    KeyCode[KeyCode["EQUALS"] = 187] = "EQUALS";
+	    KeyCode[KeyCode["COMMA"] = 188] = "COMMA";
+	    KeyCode[KeyCode["DASH"] = 189] = "DASH";
+	    KeyCode[KeyCode["PERIOD"] = 190] = "PERIOD";
+	    KeyCode[KeyCode["FORWARD_SLASH"] = 191] = "FORWARD_SLASH";
+	    KeyCode[KeyCode["GRAVE_ACCENT"] = 192] = "GRAVE_ACCENT";
+	    KeyCode[KeyCode["OPEN_BRACKET"] = 219] = "OPEN_BRACKET";
+	    KeyCode[KeyCode["BACK_SLASH"] = 220] = "BACK_SLASH";
+	    KeyCode[KeyCode["CLOSE_BRACKET"] = 221] = "CLOSE_BRACKET";
+	    KeyCode[KeyCode["SINGLE_QUOTE"] = 222] = "SINGLE_QUOTE";
+	})(exports.KeyCode || (exports.KeyCode = {}));
+	var KeyCode = exports.KeyCode;
+	var Input = (function () {
+	    function Input() {
+	        var _this = this;
+	        this.keys = {};
+	        this.keysPressed = {};
+	        document.addEventListener("keydown", function (e) { return _this.keyDown(e); });
+	        document.addEventListener("keyup", function (e) { return _this.keyUp(e); });
+	    }
+	    Input.prototype.update = function () { };
+	    Input.prototype.isDown = function (key) {
+	        if (!this.keys[key]) {
+	            return false;
+	        }
+	        return this.keys[key];
+	    };
+	    Input.prototype.justPressed = function (key) {
+	        if (!this.keys[key] || this.keysPressed[key]) {
+	            return false;
+	        }
+	        this.keysPressed[key] = true;
+	        return this.keys[key];
+	    };
+	    Input.prototype.isUp = function (key) {
+	        if (!this.keys[key]) {
+	            return true;
+	        }
+	        return this.keys[key];
+	    };
+	    Input.prototype.keyDown = function (e) {
+	        var key = e.keyCode;
+	        this.keys[key] = true;
+	    };
+	    Input.prototype.keyUp = function (e) {
+	        var key = e.keyCode;
+	        this.keys[key] = false;
+	        this.keysPressed[key] = false;
+	    };
+	    return Input;
+	}());
+	exports.Input = Input;
+
+
+/***/ },
+/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var utils_1 = __webpack_require__(3);
+	var utils_1 = __webpack_require__(4);
 	(function (GemType) {
 	    GemType[GemType["G"] = 0] = "G";
 	    GemType[GemType["B"] = 1] = "B";
@@ -492,11 +738,11 @@
 
 
 /***/ },
-/* 5 */
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var utils_1 = __webpack_require__(3);
+	var utils_1 = __webpack_require__(4);
 	var Enemy = (function () {
 	    function Enemy(id, ctx, width, height, layer, angle, speed, delay) {
 	        this.id = id;
@@ -548,7 +794,7 @@
 
 
 /***/ },
-/* 6 */
+/* 8 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -582,7 +828,7 @@
 
 
 /***/ },
-/* 7 */
+/* 9 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -667,7 +913,7 @@
 
 
 /***/ },
-/* 8 */
+/* 10 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -830,6 +1076,133 @@
 	        }
 	    ]
 	};
+
+
+/***/ },
+/* 11 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var button_1 = __webpack_require__(12);
+	var statemanager_1 = __webpack_require__(13);
+	var input_1 = __webpack_require__(5);
+	var Menu = (function () {
+	    function Menu(ctx, inputManager, screenSize, bgColor, stateManager) {
+	        var _this = this;
+	        this.ctx = ctx;
+	        this.inputManager = inputManager;
+	        this.stateManager = stateManager;
+	        // global settings
+	        this.screenSize = screenSize;
+	        this.bgColor = bgColor;
+	        this.buttons = new Array();
+	        this.buttons = [
+	            new button_1.Button(this.ctx, this.screenSize, "Play", 0, { width: 200, height: 30 }, function () { return _this.stateManager.switchTo(statemanager_1.States.GAME); }),
+	            new button_1.Button(this.ctx, this.screenSize, "Settings", 1, { width: 200, height: 30 }, function () { return _this.stateManager.switchTo(statemanager_1.States.MENU); })
+	        ];
+	        this.activeButton = 0;
+	    }
+	    Menu.prototype.update = function () {
+	        if (this.inputManager.justPressed(input_1.KeyCode.DOWN_ARROW)) {
+	            this.activeButton++;
+	            if (this.activeButton > this.buttons.length - 1) {
+	                this.activeButton = 0;
+	            }
+	        }
+	        if (this.inputManager.justPressed(input_1.KeyCode.UP_ARROW)) {
+	            this.activeButton--;
+	            if (this.activeButton < 0) {
+	                this.activeButton = this.buttons.length - 1;
+	            }
+	        }
+	        for (var _i = 0, _a = this.buttons; _i < _a.length; _i++) {
+	            var button = _a[_i];
+	            button.active = false;
+	        }
+	        this.buttons[this.activeButton].active = true;
+	        if (this.inputManager.justPressed(input_1.KeyCode.ENTER)) {
+	            this.buttons[this.activeButton].press();
+	        }
+	    };
+	    Menu.prototype.render = function () {
+	        for (var _i = 0, _a = this.buttons; _i < _a.length; _i++) {
+	            var button = _a[_i];
+	            button.render();
+	        }
+	    };
+	    return Menu;
+	}());
+	exports.Menu = Menu;
+
+
+/***/ },
+/* 12 */
+/***/ function(module, exports) {
+
+	"use strict";
+	var Button = (function () {
+	    function Button(ctx, screenSize, text, position, size, onPress) {
+	        this.ctx = ctx;
+	        this.screenSize = screenSize;
+	        this.text = text;
+	        this.textWidth = this.ctx.measureText(this.text).width;
+	        this.fontSize = 24;
+	        this.position = position;
+	        this.boxWidth = size.width;
+	        this.boxHeight = size.height;
+	        this.boxOffset = 50;
+	        this.active = false;
+	        this.onPress = onPress;
+	    }
+	    Button.prototype.update = function () {
+	    };
+	    Button.prototype.render = function () {
+	        this.textWidth = this.ctx.measureText(this.text).width;
+	        this.ctx.strokeStyle = "rgba(217, 89, 112, 1.0)";
+	        this.ctx.fillStyle = "rgba(217, 89, 112, 1.0)";
+	        this.ctx.font = this.fontSize + "px serif";
+	        var posx = this.screenSize.width / 2 - this.boxWidth / 2;
+	        var posy = this.screenSize.height / 2 - this.boxHeight + this.boxOffset * this.position;
+	        this.ctx.fillText(this.text, this.screenSize.width / 2 - this.textWidth / 2, posy + this.fontSize - (this.boxHeight - this.fontSize) / 2);
+	        if (this.active) {
+	            this.ctx.fillStyle = "rgba(217, 89, 112, 0.2)";
+	            this.ctx.strokeRect(posx, posy, this.boxWidth, this.boxHeight);
+	            this.ctx.fillRect(posx, posy, this.boxWidth, this.boxHeight);
+	        }
+	        else {
+	            this.ctx.strokeRect(posx, posy, this.boxWidth, this.boxHeight);
+	        }
+	    };
+	    Button.prototype.press = function () {
+	        this.onPress();
+	    };
+	    return Button;
+	}());
+	exports.Button = Button;
+
+
+/***/ },
+/* 13 */
+/***/ function(module, exports) {
+
+	"use strict";
+	(function (States) {
+	    States[States["MENU"] = 0] = "MENU";
+	    States[States["GAME"] = 1] = "GAME";
+	    States[States["SCORE"] = 2] = "SCORE";
+	})(exports.States || (exports.States = {}));
+	var States = exports.States;
+	var StateManager = (function () {
+	    function StateManager(initialState) {
+	        if (initialState === void 0) { initialState = States.GAME; }
+	        this.activeState = initialState;
+	    }
+	    StateManager.prototype.switchTo = function (state) {
+	        this.activeState = state;
+	    };
+	    return StateManager;
+	}());
+	exports.StateManager = StateManager;
 
 
 /***/ }
