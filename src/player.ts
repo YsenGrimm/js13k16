@@ -1,4 +1,4 @@
-import { Utils } from "./utils";
+import { Utils } from "./utils/utils";
 import { Input, KeyCode } from "./utils/input"
 
 import { GemType } from "./gem";

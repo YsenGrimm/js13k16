@@ -1,7 +1,7 @@
 import { Player } from "./player";
 import { Enemy } from "./enemy";
 import { Scanline } from "./scanline";
-import { Utils } from "./utils";
+import { Utils } from "./utils/utils";
 import { Gem } from "./gem";
 import { Stats, Square } from "./stats";
 import { Input } from "./utils/input"
