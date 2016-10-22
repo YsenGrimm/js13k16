@@ -5,10 +5,16 @@ export enum States {
     SCORE
 }
 
-class StateManager {
+export class StateManager {
 
-    constructor() {
-        
+    public activeState: States;
+
+    constructor(initialState: States = States.GAME) {
+        this.activeState = initialState;
+    }
+
+    public switchTo(state: States): void {
+        this.activeState = state;
     }
 
 }

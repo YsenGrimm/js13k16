@@ -1,17 +1,12 @@
 import { Player } from "./player";
+import { ScreenSize } from './utils/utils';
 
-export interface Square {
-    x: number,
-    y: number,
-    width: number,
-    height: number
-}
 
 export class Stats {
 
     player: Player;
     ctx: CanvasRenderingContext2D;
-    screen: Square;
+    screen: ScreenSize;
 
     barHeight: number;
     barWidth: number;
@@ -21,7 +16,7 @@ export class Stats {
     margin: number;
     sideMargin: number;
 
-   constructor(ctx: CanvasRenderingContext2D, player: Player, screen: Square) {
+   constructor(ctx: CanvasRenderingContext2D, player: Player, screen: ScreenSize) {
        this.ctx = ctx;
        this.player = player;
        this.screen = screen;
