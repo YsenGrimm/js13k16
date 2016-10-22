@@ -1,6 +1,6 @@
-# $Game Title
+# Pulsarion
 
-Something with circles for js13k.
+Something with circles and gems for js13k.
 
 Play the game at: [https://ysengrimm.github.io/js13k16/](https://ysengrimm.github.io/js13k16/)
 
