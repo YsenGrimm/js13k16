@@ -3,6 +3,7 @@ import { Enemy } from "./enemy";
 import { Scanline } from "./scanline";
 import { Utils } from "./utils";
 import { Gem } from "./gem";
+import { Stats, Square } from "./stats";
 
 import { PATTERN } from "./pattern";
 
@@ -33,9 +34,12 @@ export class Game {
 
     activeWave: number;
 
+    stats: Stats;
+
     constructor() {
         this.canvas = document.getElementById("canvas") as HTMLCanvasElement;
-        this.ctx = this.canvas.getContext("2d");
+        this.ctx = this.canvas.getContext("2d", {alpha: false});
+        this.ctx.translate(0.5, 0.5);
 
         this.w = 800;
         this.h = 480;
@@ -61,6 +65,8 @@ export class Game {
         for (const gemData of PATTERN.waves[this.activeWave].gems) {
             this.gems.push(new Gem(gemData.id, this.ctx, this.w, this.h, gemData.type, gemData.ring, gemData.angle, gemData.speed, gemData.delay));
         }
+
+        this.stats = new Stats(this.ctx, this.player, { x: 0, y: 0, width: this.w, height: this.h });
 
         // gameloop
         this.update = this.update.bind(this);
@@ -143,6 +149,8 @@ export class Game {
 
         this.player.render();
 
+        this.stats.render();
+
         this.ctx.font = "13px sans-serif";
         this.ctx.fillStyle = "rgb(199, 191, 65)";
         this.ctx.fillText(`${this.player.green.toString()} | ${this.player.greenGoal.toString()}`, 30, 40);
@@ -166,18 +174,19 @@ export class Game {
         this.drawDebugLines();
 
         // clear center circle
-        this.ctx.fillStyle = this.bgColor;
+        this.ctx.fillStyle = "#D95970";
+        // this.ctx.fillStyle = this.bgColor;
         this.ctx.beginPath();
         this.ctx.arc(this.w/2, this.h/2, minR, 0, 2 * Math.PI);
         this.ctx.fill();
 
         // draw center circle aka player health
-        this.ctx.fillStyle = "#D95970";
-        this.ctx.beginPath();
-        this.ctx.lineTo(this.w/2 + minR, this.h/2);
-        this.ctx.arc(this.w/2, this.h/2, minR, 0, (this.player.health / this.player.maxHealth) * 2 * Math.PI, false);
-        this.ctx.lineTo(this.w/2, this.h/2);
-        this.ctx.fill();
+        // this.ctx.fillStyle = "#D95970";
+        // this.ctx.beginPath();
+        // this.ctx.lineTo(this.w/2 + minR, this.h/2);
+        // this.ctx.arc(this.w/2, this.h/2, minR, 0, (this.player.health / this.player.maxHealth) * 2 * Math.PI, false);
+        // this.ctx.lineTo(this.w/2, this.h/2);
+        // this.ctx.fill();
     }
 
     drawDebugLines() {
