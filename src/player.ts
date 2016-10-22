@@ -53,7 +53,7 @@ export class Player {
 
         this.size = 6;
 
-        this.width = 30;
+        this.width = 28;
         this.height = 4;
 
         this.maxHealth = 3;
@@ -76,25 +76,25 @@ export class Player {
 
         switch (this.id) {
             case 0:
-                if (e.key === "ArrowLeft") {
+                if (e.key === "ArrowLeft" || e.keyCode === 37) {
                     this.pos--;
                     if (this.pos < 0) {
                         this.pos = 0;
                     }
                 }
-                if (e.key === "ArrowRight") {
+                if (e.key === "ArrowRight" || e.keyCode === 39) {
                     this.pos++;
                     if (this.pos > this.maxPos) {
                         this.pos = this.maxPos;
                     }
                 }
-                if (e.key === "ArrowUp") {
+                if (e.key === "ArrowUp" || e.keyCode === 38) {
                     this.axis--;
                     if (this.axis < 0) {
                         this.axis = 3;
                     }
                 }
-                if (e.key === "ArrowDown") {
+                if (e.key === "ArrowDown" || e.keyCode === 40) {
                     this.axis++;
                     if (this.axis > 3) {
                         this.axis = 0;
@@ -102,32 +102,32 @@ export class Player {
                 }
                 break;
 
-            case 1:
-                if (e.key === "a") {
-                    this.pos--;
-                    if (this.pos < 0) {
-                        this.pos = 0;
-                    }
-                }
-                if (e.key === "d") {
-                    this.pos++;
-                    if (this.pos > this.maxPos) {
-                        this.pos = this.maxPos;
-                    }
-                }
-                if (e.key === "w") {
-                    this.axis--;
-                    if (this.axis < 0) {
-                        this.axis = 3;
-                    }
-                }
-                if (e.key === "s") {
-                    this.axis++;
-                    if (this.axis > 3) {
-                        this.axis = 0;
-                    }
-                }
-                break;
+            // case 1:
+            //     if (e.key === "a") {
+            //         this.pos--;
+            //         if (this.pos < 0) {
+            //             this.pos = 0;
+            //         }
+            //     }
+            //     if (e.key === "d") {
+            //         this.pos++;
+            //         if (this.pos > this.maxPos) {
+            //             this.pos = this.maxPos;
+            //         }
+            //     }
+            //     if (e.key === "w") {
+            //         this.axis--;
+            //         if (this.axis < 0) {
+            //             this.axis = 3;
+            //         }
+            //     }
+            //     if (e.key === "s") {
+            //         this.axis++;
+            //         if (this.axis > 3) {
+            //             this.axis = 0;
+            //         }
+            //     }
+            //     break;
         }
     }
 
@@ -137,13 +137,20 @@ export class Player {
 
     render() : void {
         this.ctx.fillStyle = this.color;
+        this.ctx.strokeStyle = this.color;
 
         if (Math.abs(Math.cos(Utils.deg2rad(this.axisPool[this.axis]))) > 0.5) {
-            this.ctx.fillRect((Math.cos(Utils.deg2rad(this.axisPool[this.axis])) * (1 + this.minOffset + this.offset * this.pos)) + this.gameWidth/2 - this.width/2,
-                                (Math.sin(Utils.deg2rad(this.axisPool[this.axis])) * (this.minOffset + this.offset * this.pos)) + this.gameHeigth/2 - this.height/2, this.width, this.height);
+            const posx = (Math.cos(Utils.deg2rad(this.axisPool[this.axis])) * (1 + this.minOffset + this.offset * this.pos)) + this.gameWidth/2 - this.width/2;
+            const posy = (Math.sin(Utils.deg2rad(this.axisPool[this.axis])) * (this.minOffset + this.offset * this.pos)) + this.gameHeigth/2 - this.height/2;
+
+            this.ctx.strokeRect(posx, posy, this.width, this.height);
+            this.ctx.fillRect(posx, posy, this.width, this.height);                                
         } else {
-            this.ctx.fillRect((Math.cos(Utils.deg2rad(this.axisPool[this.axis])) * (1 + this.minOffset + this.offset * this.pos)) + this.gameWidth/2 - this.height/2,
-                                (Math.sin(Utils.deg2rad(this.axisPool[this.axis])) * (this.minOffset + this.offset * this.pos)) + this.gameHeigth/2 - this.width/2, this.height, this.width);
+            const posx = (Math.cos(Utils.deg2rad(this.axisPool[this.axis])) * (1 + this.minOffset + this.offset * this.pos)) + this.gameWidth/2 - this.height/2;
+            const posy = (Math.sin(Utils.deg2rad(this.axisPool[this.axis])) * (1 + this.minOffset + this.offset * this.pos)) + this.gameHeigth/2 - this.width/2;
+
+            this.ctx.strokeRect(posx, posy, this.height, this.width);
+            this.ctx.fillRect(posx, posy, this.height, this.width);
         }
     }
 
