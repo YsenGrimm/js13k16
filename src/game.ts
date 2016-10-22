@@ -33,8 +33,9 @@ export class Game {
         this.bgColor = "#533B59";
 
         // States
-        this.stateManager = new StateManager();
+        this.stateManager = new StateManager(States.MENU);
         this.ingame = new Ingame(this.ctx, this.inputManager, this.screenSize, this.bgColor);
+        this.menu = new Menu(this.ctx, this.inputManager, this.screenSize, this.bgColor, this.stateManager);
 
         // gameloop
         this.update = this.update.bind(this);
@@ -48,6 +49,7 @@ export class Game {
                 break;
             
             case States.MENU:
+                this.menu.update();
                 break;
 
             case States.SCORE:
@@ -69,6 +71,7 @@ export class Game {
                 break;
             
             case States.MENU:
+                this.menu.render();
                 break;
 
             case States.SCORE:
