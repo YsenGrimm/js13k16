@@ -26,6 +26,10 @@
                 border: none;
             }
 
+            *:focus {
+                outline: none;
+            }
+
             #game { 
                 background: #533B59; 
                 width: 800px;
@@ -49,7 +53,7 @@
     </head>
     <body> 
         <div class="container">
-            <canvas id="game" width="800" height="480"></canvas>
+            <canvas id="game" width="800" height="480" tabindex="1"></canvas>
         </div>
         
         <script src="dist/game.js" charset="utf-8"></script>
@@ -75,7 +79,8 @@
                 }
                 
                 canvas.setAttribute('style', style + ' ' + '-ms-transform-origin: center center; -webkit-transform-origin: center center; -moz-transform-origin: center center; -o-transform-origin: center center; transform-origin: center center; -ms-transform: scale(' + scale + '); -webkit-transform: scale3d(' + scale + ', 1); -moz-transform: scale(' + scale + '); -o-transform: scale(' + scale + '); transform: scale(' + scale + ');');
-            }            
+            }
+            canvas.focus();
         </script>
     </body>
 </html>
