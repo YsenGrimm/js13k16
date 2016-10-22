@@ -1,8 +1,11 @@
 import { Utils } from "./utils";
+import { Input, KeyCode } from "./utils/input"
 
 import { GemType } from "./gem";
 
 export class Player {
+
+    inputMarager: Input;
 
     id: number;
     ctx: CanvasRenderingContext2D;
@@ -35,8 +38,11 @@ export class Player {
     yellow: number;
     yellowGoal: number;
 
-    constructor(id: number, ctx: CanvasRenderingContext2D, layer: number, startAxis: number, gameWidth: number, gameHeigth: 
+    constructor(id: number, ctx: CanvasRenderingContext2D, inputManager: Input, layer: number, startAxis: number, gameWidth: number, gameHeigth: 
                 number, goal: {green: number, blue: number, yellow: number}) {
+
+        this.inputMarager = inputManager;
+
         this.id = id;
         this.ctx = ctx;
         this.color = "rgb(242, 214, 128)";
@@ -67,72 +73,38 @@ export class Player {
         this.blueGoal = goal.blue;
 
         this.yellow = 0;
-        this.yellowGoal = goal.yellow;
-
-        document.addEventListener("keydown", e => this.handleInput(e));
+        this.yellowGoal = goal.yellow;        
     }
 
-    private handleInput(e: KeyboardEvent) : void {
-
+    update(): void {
         switch (this.id) {
             case 0:
-                if (e.key === "ArrowLeft" || e.keyCode === 37) {
+                if (this.inputMarager.justPressed(KeyCode.LEFT_ARROW)) {
                     this.pos--;
                     if (this.pos < 0) {
                         this.pos = 0;
                     }
                 }
-                if (e.key === "ArrowRight" || e.keyCode === 39) {
+                if (this.inputMarager.justPressed(KeyCode.RIGHT_ARROW)) {
                     this.pos++;
                     if (this.pos > this.maxPos) {
                         this.pos = this.maxPos;
                     }
                 }
-                if (e.key === "ArrowUp" || e.keyCode === 38) {
+                if (this.inputMarager.justPressed(KeyCode.UP_ARROW)) {
                     this.axis--;
                     if (this.axis < 0) {
                         this.axis = 3;
                     }
                 }
-                if (e.key === "ArrowDown" || e.keyCode === 40) {
+                if (this.inputMarager.justPressed(KeyCode.DOWN_ARROW)) {
                     this.axis++;
                     if (this.axis > 3) {
                         this.axis = 0;
                     }
                 }
                 break;
-
-            // case 1:
-            //     if (e.key === "a") {
-            //         this.pos--;
-            //         if (this.pos < 0) {
-            //             this.pos = 0;
-            //         }
-            //     }
-            //     if (e.key === "d") {
-            //         this.pos++;
-            //         if (this.pos > this.maxPos) {
-            //             this.pos = this.maxPos;
-            //         }
-            //     }
-            //     if (e.key === "w") {
-            //         this.axis--;
-            //         if (this.axis < 0) {
-            //             this.axis = 3;
-            //         }
-            //     }
-            //     if (e.key === "s") {
-            //         this.axis++;
-            //         if (this.axis > 3) {
-            //             this.axis = 0;
-            //         }
-            //     }
-            //     break;
         }
-    }
-
-    update(): void {
-        
     }
 
     render() : void {

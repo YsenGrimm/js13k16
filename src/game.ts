@@ -4,6 +4,7 @@ import { Scanline } from "./scanline";
 import { Utils } from "./utils";
 import { Gem } from "./gem";
 import { Stats, Square } from "./stats";
+import { Input } from "./utils/input"
 
 import { PATTERN } from "./pattern";
 
@@ -12,6 +13,8 @@ export class Game {
     // setup
     canvas: HTMLCanvasElement;
     ctx: CanvasRenderingContext2D;
+
+    inputManager: Input;
 
     // world map
     layer: number;
@@ -41,6 +44,8 @@ export class Game {
         this.ctx = this.canvas.getContext("2d", {alpha: false});
         this.ctx.translate(0.5, 0.5);
 
+        this.inputManager = new Input();
+
         this.w = 800;
         this.h = 480;
         this.bgColor = "#533B59";
@@ -54,7 +59,7 @@ export class Game {
         // init globals
         this.activeWave = 0;
 
-        this.player = new Player(0, this.ctx, this.layer, 0, this.w, this.h, PATTERN.waves[this.activeWave].win);
+        this.player = new Player(0, this.ctx, this.inputManager, this.layer, 0, this.w, this.h, PATTERN.waves[this.activeWave].win);
 
         this.enemies = new Array<Enemy>();
         for (const enemyData of PATTERN.waves[this.activeWave].enemys) {
@@ -126,6 +131,8 @@ export class Game {
         if (this.player.health < 0) {
             this.resetWave();
         }
+
+        this.inputManager.update();
 
         this.draw();
         window.requestAnimationFrame(this.update);
