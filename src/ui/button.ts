@@ -1,14 +1,13 @@
-import { ScreenSize } from './utils/utils';
+import { Layout, LayoutPosition, LayoutOptions } from './layout';
 
 export class Button {
     ctx: CanvasRenderingContext2D;
-    screenSize: ScreenSize;
+    layout: Layout;
+    layoutOptions: LayoutOptions;
 
     text: string;
     textWidth: number;
     fontSize: number;
-
-    position: number;
 
     offset: number;
 
@@ -20,16 +19,15 @@ export class Button {
 
     onPress: () => void;
 
-    constructor(ctx: CanvasRenderingContext2D, screenSize: ScreenSize, text: string, position: number, 
-                size: { width: number, height: number }, onPress: () => void) {
+    constructor(ctx: CanvasRenderingContext2D, layout: Layout, text: string, size: { width: number, height: number }, 
+                layoutOptions: LayoutOptions, onPress: () => void) {
         this.ctx = ctx;
-        this.screenSize = screenSize;
+        this.layout = layout;
+        this.layoutOptions = layoutOptions;
 
         this.text = text;
         this.textWidth = this.ctx.measureText(this.text).width;
         this.fontSize = 24;
-
-        this.position = position;
 
         this.boxWidth = size.width;
         this.boxHeight = size.height;
@@ -45,17 +43,20 @@ export class Button {
     }
 
     render() {
-        this.textWidth = this.ctx.measureText(this.text).width;
-
         this.ctx.strokeStyle = "rgba(217, 89, 112, 1.0)";
         this.ctx.fillStyle = "rgba(217, 89, 112, 1.0)";
 
-        this.ctx.font = `${this.fontSize}px serif`;
+        this.ctx.font = `${this.fontSize}px sans-serif`;
 
-        const posx = this.screenSize.width / 2 - this.boxWidth / 2;
-        const posy = this.screenSize.height / 2 - this.boxHeight + this.boxOffset * this.position;
+        this.textWidth = this.ctx.measureText(this.text).width;
+        
+        const layoutPos = this.layout.convert(this.layoutOptions); 
 
-        this.ctx.fillText(this.text, this.screenSize.width / 2 - this.textWidth / 2, posy + this.fontSize - (this.boxHeight - this.fontSize) / 2);
+        const posx = layoutPos.x - this.boxWidth / 2;
+        const posy = layoutPos.y - this.boxHeight / 2;
+
+        this.ctx.fillText(this.text, layoutPos.x - this.textWidth / 2, posy + this.fontSize + 2 - (this.boxHeight - this.fontSize) / 2);
+
         if (this.active) {
             this.ctx.fillStyle = "rgba(217, 89, 112, 0.2)";
             this.ctx.strokeRect(posx, posy, this.boxWidth, this.boxHeight);

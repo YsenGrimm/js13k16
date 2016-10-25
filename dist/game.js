@@ -56,7 +56,7 @@
 	"use strict";
 	var ingame_1 = __webpack_require__(2);
 	var menu_1 = __webpack_require__(11);
-	var statemanager_1 = __webpack_require__(13);
+	var statemanager_1 = __webpack_require__(12);
 	var input_1 = __webpack_require__(5);
 	var Game = (function () {
 	    function Game() {
@@ -1083,8 +1083,9 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var button_1 = __webpack_require__(12);
-	var statemanager_1 = __webpack_require__(13);
+	var statemanager_1 = __webpack_require__(12);
+	var button_1 = __webpack_require__(13);
+	var layout_1 = __webpack_require__(14);
 	var input_1 = __webpack_require__(5);
 	var Menu = (function () {
 	    function Menu(ctx, inputManager, screenSize, bgColor, stateManager) {
@@ -1095,10 +1096,13 @@
 	        // global settings
 	        this.screenSize = screenSize;
 	        this.bgColor = bgColor;
+	        this.menuLayout = new layout_1.Layout(this.screenSize, 10, 3);
 	        this.buttons = new Array();
 	        this.buttons = [
-	            new button_1.Button(this.ctx, this.screenSize, "Play", 0, { width: 200, height: 30 }, function () { return _this.stateManager.switchTo(statemanager_1.States.GAME); }),
-	            new button_1.Button(this.ctx, this.screenSize, "Settings", 1, { width: 200, height: 30 }, function () { return _this.stateManager.switchTo(statemanager_1.States.MENU); })
+	            new button_1.Button(this.ctx, this.menuLayout, "SINGLEPLAYER", { width: 200, height: 30 }, { row: 5, col: 1, pos: layout_1.LayoutPosition.CENTER_CENTER }, function () { return _this.stateManager.switchTo(statemanager_1.States.GAME); }),
+	            new button_1.Button(this.ctx, this.menuLayout, "MULTIPLAYER", { width: 200, height: 30 }, { row: 6, col: 1, pos: layout_1.LayoutPosition.CENTER_CENTER }, function () { return _this.stateManager.switchTo(statemanager_1.States.MENU); }),
+	            new button_1.Button(this.ctx, this.menuLayout, "HIGHSCORE", { width: 200, height: 30 }, { row: 7, col: 1, pos: layout_1.LayoutPosition.CENTER_CENTER }, function () { return _this.stateManager.switchTo(statemanager_1.States.MENU); }),
+	            new button_1.Button(this.ctx, this.menuLayout, "SETTINGS", { width: 200, height: 30 }, { row: 8, col: 1, pos: layout_1.LayoutPosition.CENTER_CENTER }, function () { return _this.stateManager.switchTo(statemanager_1.States.MENU); })
 	        ];
 	        this.activeButton = 0;
 	    }
@@ -1125,10 +1129,19 @@
 	        }
 	    };
 	    Menu.prototype.render = function () {
+	        this.menuLayout.showDebug(this.ctx);
+	        this.title();
 	        for (var _i = 0, _a = this.buttons; _i < _a.length; _i++) {
 	            var button = _a[_i];
 	            button.render();
 	        }
+	    };
+	    Menu.prototype.title = function () {
+	        this.ctx.font = "140px sans-serif";
+	        this.ctx.strokeStyle = "rgba(217, 89, 112, 1.0)";
+	        var layout = this.menuLayout.convert({ row: 3, col: 1, pos: layout_1.LayoutPosition.CENTER_CENTER });
+	        var textWidth = this.ctx.measureText("Pulsarion").width;
+	        this.ctx.strokeText("Pulsarion", layout.x - textWidth / 2, layout.y);
 	    };
 	    return Menu;
 	}());
@@ -1137,52 +1150,6 @@
 
 /***/ },
 /* 12 */
-/***/ function(module, exports) {
-
-	"use strict";
-	var Button = (function () {
-	    function Button(ctx, screenSize, text, position, size, onPress) {
-	        this.ctx = ctx;
-	        this.screenSize = screenSize;
-	        this.text = text;
-	        this.textWidth = this.ctx.measureText(this.text).width;
-	        this.fontSize = 24;
-	        this.position = position;
-	        this.boxWidth = size.width;
-	        this.boxHeight = size.height;
-	        this.boxOffset = 50;
-	        this.active = false;
-	        this.onPress = onPress;
-	    }
-	    Button.prototype.update = function () {
-	    };
-	    Button.prototype.render = function () {
-	        this.textWidth = this.ctx.measureText(this.text).width;
-	        this.ctx.strokeStyle = "rgba(217, 89, 112, 1.0)";
-	        this.ctx.fillStyle = "rgba(217, 89, 112, 1.0)";
-	        this.ctx.font = this.fontSize + "px serif";
-	        var posx = this.screenSize.width / 2 - this.boxWidth / 2;
-	        var posy = this.screenSize.height / 2 - this.boxHeight + this.boxOffset * this.position;
-	        this.ctx.fillText(this.text, this.screenSize.width / 2 - this.textWidth / 2, posy + this.fontSize - (this.boxHeight - this.fontSize) / 2);
-	        if (this.active) {
-	            this.ctx.fillStyle = "rgba(217, 89, 112, 0.2)";
-	            this.ctx.strokeRect(posx, posy, this.boxWidth, this.boxHeight);
-	            this.ctx.fillRect(posx, posy, this.boxWidth, this.boxHeight);
-	        }
-	        else {
-	            this.ctx.strokeRect(posx, posy, this.boxWidth, this.boxHeight);
-	        }
-	    };
-	    Button.prototype.press = function () {
-	        this.onPress();
-	    };
-	    return Button;
-	}());
-	exports.Button = Button;
-
-
-/***/ },
-/* 13 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -1203,6 +1170,129 @@
 	    return StateManager;
 	}());
 	exports.StateManager = StateManager;
+
+
+/***/ },
+/* 13 */
+/***/ function(module, exports) {
+
+	"use strict";
+	var Button = (function () {
+	    function Button(ctx, layout, text, size, layoutOptions, onPress) {
+	        this.ctx = ctx;
+	        this.layout = layout;
+	        this.layoutOptions = layoutOptions;
+	        this.text = text;
+	        this.textWidth = this.ctx.measureText(this.text).width;
+	        this.fontSize = 24;
+	        this.boxWidth = size.width;
+	        this.boxHeight = size.height;
+	        this.boxOffset = 50;
+	        this.active = false;
+	        this.onPress = onPress;
+	    }
+	    Button.prototype.update = function () {
+	    };
+	    Button.prototype.render = function () {
+	        this.ctx.strokeStyle = "rgba(217, 89, 112, 1.0)";
+	        this.ctx.fillStyle = "rgba(217, 89, 112, 1.0)";
+	        this.ctx.font = this.fontSize + "px sans-serif";
+	        this.textWidth = this.ctx.measureText(this.text).width;
+	        var layoutPos = this.layout.convert(this.layoutOptions);
+	        var posx = layoutPos.x - this.boxWidth / 2;
+	        var posy = layoutPos.y - this.boxHeight / 2;
+	        this.ctx.fillText(this.text, layoutPos.x - this.textWidth / 2, posy + this.fontSize + 2 - (this.boxHeight - this.fontSize) / 2);
+	        if (this.active) {
+	            this.ctx.fillStyle = "rgba(217, 89, 112, 0.2)";
+	            this.ctx.strokeRect(posx, posy, this.boxWidth, this.boxHeight);
+	            this.ctx.fillRect(posx, posy, this.boxWidth, this.boxHeight);
+	        }
+	        else {
+	            this.ctx.strokeRect(posx, posy, this.boxWidth, this.boxHeight);
+	        }
+	    };
+	    Button.prototype.press = function () {
+	        this.onPress();
+	    };
+	    return Button;
+	}());
+	exports.Button = Button;
+
+
+/***/ },
+/* 14 */
+/***/ function(module, exports) {
+
+	"use strict";
+	(function (LayoutPosition) {
+	    LayoutPosition[LayoutPosition["TOP_LEFT"] = 0] = "TOP_LEFT";
+	    LayoutPosition[LayoutPosition["TOP_RIGHT"] = 1] = "TOP_RIGHT";
+	    LayoutPosition[LayoutPosition["TOP_CENTER"] = 2] = "TOP_CENTER";
+	    LayoutPosition[LayoutPosition["CENTER_LEFT"] = 3] = "CENTER_LEFT";
+	    LayoutPosition[LayoutPosition["CENTER_RIGHT"] = 4] = "CENTER_RIGHT";
+	    LayoutPosition[LayoutPosition["CENTER_CENTER"] = 5] = "CENTER_CENTER";
+	    LayoutPosition[LayoutPosition["BOT_LEFT"] = 6] = "BOT_LEFT";
+	    LayoutPosition[LayoutPosition["BOT_RIGHT"] = 7] = "BOT_RIGHT";
+	    LayoutPosition[LayoutPosition["BOT_CENTER"] = 8] = "BOT_CENTER";
+	})(exports.LayoutPosition || (exports.LayoutPosition = {}));
+	var LayoutPosition = exports.LayoutPosition;
+	var Layout = (function () {
+	    function Layout(size, rows, cols) {
+	        this.size = size;
+	        this.rows = rows;
+	        this.cols = cols;
+	        this.sRows = this.size.height / this.rows;
+	        this.sCols = this.size.width / this.cols;
+	    }
+	    Layout.prototype.convert = function (options) {
+	        return this.convertRaw(options.row, options.col, options.pos);
+	    };
+	    Layout.prototype.convertRaw = function (row, col, pos) {
+	        var convRow = this.sRows * row;
+	        var convCol = this.sCols * col;
+	        switch (pos) {
+	            // top
+	            case LayoutPosition.TOP_LEFT:
+	                return { x: convCol, y: convRow };
+	            case LayoutPosition.TOP_CENTER:
+	                return { x: convCol + this.sCols / 2, y: convRow };
+	            case LayoutPosition.TOP_CENTER:
+	                return { x: convCol + this.sCols, y: convRow };
+	            // center
+	            case LayoutPosition.CENTER_LEFT:
+	                return { x: convCol, y: convRow + this.sRows / 2 };
+	            case LayoutPosition.CENTER_CENTER:
+	                return { x: convCol + this.sCols / 2, y: convRow + this.sRows / 2 };
+	            case LayoutPosition.CENTER_CENTER:
+	                return { x: convCol + this.sCols, y: convRow + this.sRows / 2 };
+	            // bot
+	            case LayoutPosition.BOT_LEFT:
+	                return { x: convCol, y: convRow + this.sRows };
+	            case LayoutPosition.BOT_CENTER:
+	                return { x: convCol + this.sCols / 2, y: convRow + this.sRows };
+	            case LayoutPosition.BOT_CENTER:
+	                return { x: convCol + this.sCols, y: convRow + this.sRows };
+	        }
+	    };
+	    Layout.prototype.showDebug = function (ctx) {
+	        for (var x = 0; x <= this.cols; x++) {
+	            ctx.strokeStyle = "#ff9001";
+	            ctx.beginPath();
+	            ctx.moveTo(Math.floor(this.sCols * x) >= this.size.width ? this.size.width - 1 : Math.floor(this.sCols * x), 0);
+	            ctx.lineTo(Math.floor(this.sCols * x) >= this.size.width ? this.size.width - 1 : Math.floor(this.sCols * x), this.size.height);
+	            ctx.stroke();
+	        }
+	        for (var y = 0; y <= this.rows; y++) {
+	            ctx.strokeStyle = "#ff9001";
+	            ctx.beginPath();
+	            ctx.moveTo(0, Math.floor(this.sRows * y) >= this.size.height ? this.size.height - 1 : Math.floor(this.sRows * y));
+	            ctx.lineTo(this.size.width, Math.floor(this.sRows * y) >= this.size.height ? this.size.height - 1 : Math.floor(this.sRows * y));
+	            ctx.stroke();
+	        }
+	    };
+	    return Layout;
+	}());
+	exports.Layout = Layout;
 
 
 /***/ }

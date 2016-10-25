@@ -14,6 +14,7 @@
   },
   "scripts": {
     "dev": "webpack-dev-server",
+    "build": "webpack",
     "start": "webpack",
     "release": "webpack --config release.webpack.config.js"
   },
