@@ -8,7 +8,7 @@ export const PATTERN = {
                 blue: 1,
                 yellow: 1
             },
-            enemys: [
+            enemies: [
                 {
                     id: 0,
                     ring: 0,
@@ -59,7 +59,7 @@ export const PATTERN = {
                 blue: 2,
                 yellow: 2
             },
-            enemys: [
+            enemies: [
                 {
                     id: 0,
                     ring: 5,

@@ -6,7 +6,8 @@ import { Gem } from "./entities/gem";
 import { Stats } from "./ui/stats";
 import { Input } from "../utils/input"
 
-import { PATTERN } from "../pattern";
+import { GameBackground } from "./gamebg";
+import { PatternManager } from "./patterns/patternmanager";
 
 export class Ingame {
 
@@ -22,6 +23,7 @@ export class Ingame {
     layer: number;
     cells: number;
 
+    patternManager: PatternManager;
     scanline: Scanline;
     stats: Stats;
 
@@ -46,15 +48,17 @@ export class Ingame {
 
         this.activeWave = 0;
 
-        this.player = new Player(0, this.ctx, this.inputManager, this.layer, 0, this.screenSize.width, this.screenSize.height, PATTERN.waves[this.activeWave].win);
+        this.patternManager = new PatternManager();
+
+        this.player = new Player(0, this.ctx, this.inputManager, this.layer, 0, this.screenSize.width, this.screenSize.height, this.patternManager.getPattern(0).waves[this.activeWave].win);
 
         this.enemies = new Array<Enemy>();
-        for (const enemyData of PATTERN.waves[this.activeWave].enemys) {
+        for (const enemyData of this.patternManager.getPattern(0).waves[this.activeWave].enemies) {
             this.enemies.push(new Enemy(enemyData.id, this.ctx, this.screenSize.width, this.screenSize.height, enemyData.ring, enemyData.angle, enemyData.speed, enemyData.delay));
         }
 
         this.gems = new Array<Gem>();
-        for (const gemData of PATTERN.waves[this.activeWave].gems) {
+        for (const gemData of this.patternManager.getPattern(0).waves[this.activeWave].gems) {
             this.gems.push(new Gem(gemData.id, this.ctx, this.screenSize.width, this.screenSize.height, gemData.type, gemData.ring, gemData.angle, gemData.speed, gemData.delay));
         }
 
@@ -173,15 +177,15 @@ export class Ingame {
         this.player.reset();
         this.activeWave++;
         // set new player goals
-        this.player.setGoals(PATTERN.waves[this.activeWave].win);
+        this.player.setGoals(this.patternManager.getPattern(0).waves[this.activeWave].win);
 
         // new enemies
-        for (const enemyData of PATTERN.waves[this.activeWave].enemys) {
+        for (const enemyData of this.patternManager.getPattern(0).waves[this.activeWave].enemies) {
             this.enemies.push(new Enemy(enemyData.id, this.ctx, this.screenSize.width, this.screenSize.height, enemyData.ring, enemyData.angle, enemyData.speed, enemyData.delay));
         }
 
         // new gems
-        for (const gemData of PATTERN.waves[this.activeWave].gems) {
+        for (const gemData of this.patternManager.getPattern(0).waves[this.activeWave].gems) {
             this.gems.push(new Gem(gemData.id, this.ctx, this.screenSize.width, this.screenSize.height, gemData.type, gemData.ring, gemData.angle, gemData.speed, gemData.delay));
         }
     }
