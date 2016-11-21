@@ -1,5 +1,5 @@
-import { Player } from "./player";
-import { ScreenSize } from './utils/utils';
+import { Player } from "../entities/player";
+import { ScreenSize } from '../../utils/utils';
 
 
 export class Stats {

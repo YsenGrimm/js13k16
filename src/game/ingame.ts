@@ -1,12 +1,12 @@
-import { Player } from "./player";
-import { Enemy } from "./enemy";
+import { Player } from "./entities/player";
+import { Enemy } from "./entities/enemy";
 import { Scanline } from "./scanline";
-import { Utils, ScreenSize } from "./utils/utils";
-import { Gem } from "./gem";
-import { Stats } from "./stats";
-import { Input } from "./utils/input"
+import { Utils, ScreenSize } from "../utils/utils";
+import { Gem } from "./entities/gem";
+import { Stats } from "./ui/stats";
+import { Input } from "../utils/input"
 
-import { PATTERN } from "./pattern";
+import { PATTERN } from "../pattern";
 
 export class Ingame {
 

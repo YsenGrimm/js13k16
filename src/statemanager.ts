@@ -2,7 +2,8 @@
 export enum States {
     MENU,
     GAME,
-    SCORE
+    SCORE,
+    EDITOR
 }
 
 export class StateManager {

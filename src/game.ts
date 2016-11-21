@@ -1,5 +1,6 @@
-import { Ingame } from './ingame';
+import { Ingame } from './game/ingame';
 import { Menu } from './menu';
+import { Editor } from './editor/editor';
 import { States, StateManager } from './statemanager';
 
 import { Input } from "./utils/input"
@@ -20,6 +21,7 @@ export class Game {
     stateManager: StateManager;
     ingame: Ingame;
     menu: Menu;
+    editor: Editor;
 
     constructor() {
         this.canvas = document.getElementById("game") as HTMLCanvasElement;
@@ -36,6 +38,7 @@ export class Game {
         this.stateManager = new StateManager(States.MENU);
         this.ingame = new Ingame(this.ctx, this.inputManager, this.screenSize, this.bgColor);
         this.menu = new Menu(this.ctx, this.inputManager, this.screenSize, this.bgColor, this.stateManager);
+        this.editor = new Editor(this.ctx, this.inputManager, this.screenSize);
 
         // gameloop
         this.update = this.update.bind(this);
@@ -54,6 +57,9 @@ export class Game {
 
             case States.SCORE:
                 break;
+            
+            case States.EDITOR:
+                this.editor.update();
         }
         
 
@@ -76,6 +82,9 @@ export class Game {
 
             case States.SCORE:
                 break;
+
+            case States.EDITOR:
+                this.editor.render();
         }
     }
 }

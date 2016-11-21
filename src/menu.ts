@@ -1,4 +1,4 @@
-import { Stats } from "./stats";
+import { Stats } from "./game/ui/stats";
 import { States, StateManager } from './statemanager';
 
 import { Button } from './ui/button';
@@ -35,10 +35,11 @@ export class Menu {
 
         this.buttons = new Array<Button>();
         this.buttons = [
-            new Button(this.ctx, this.menuLayout, "SINGLEPLAYER", { width: 200, height: 30 }, { row: 5, col: 1, pos: LayoutPosition.CENTER_CENTER }, () => this.stateManager.switchTo(States.GAME)), 
-            new Button(this.ctx, this.menuLayout, "MULTIPLAYER", { width: 200, height: 30 }, { row: 6, col: 1, pos: LayoutPosition.CENTER_CENTER }, () => this.stateManager.switchTo(States.MENU)),
-            new Button(this.ctx, this.menuLayout, "HIGHSCORE", { width: 200, height: 30 }, { row: 7, col: 1, pos: LayoutPosition.CENTER_CENTER }, () => this.stateManager.switchTo(States.MENU)),
-            new Button(this.ctx, this.menuLayout, "SETTINGS", { width: 200, height: 30 }, { row: 8, col: 1, pos: LayoutPosition.CENTER_CENTER }, () => this.stateManager.switchTo(States.MENU))
+            new Button(this.ctx, this.menuLayout, "SINGLEPLAYER", { width: 200, height: 30 }, { row: 5, col: 1, pos: LayoutPosition.CENTER_CENTER }, () => this.stateManager.switchTo(States.GAME)),
+            new Button(this.ctx, this.menuLayout, "MULTIPLAYER", { width: 200, height: 30 }, { row: 6, col: 1, pos: LayoutPosition.CENTER_CENTER }, () => this.stateManager.switchTo(States.MENU)), 
+            new Button(this.ctx, this.menuLayout, "EDITOR", { width: 200, height: 30 }, { row: 7, col: 1, pos: LayoutPosition.CENTER_CENTER }, () => this.stateManager.switchTo(States.EDITOR)),
+            new Button(this.ctx, this.menuLayout, "HIGHSCORE", { width: 200, height: 30 }, { row: 8, col: 1, pos: LayoutPosition.CENTER_CENTER }, () => this.stateManager.switchTo(States.MENU)),
+            new Button(this.ctx, this.menuLayout, "SETTINGS", { width: 200, height: 30 }, { row: 9, col: 1, pos: LayoutPosition.CENTER_CENTER }, () => this.stateManager.switchTo(States.MENU))
         ];
         this.activeButton = 0;
     }
@@ -69,7 +70,7 @@ export class Menu {
     }
 
     public render() {
-        this.menuLayout.showDebug(this.ctx);
+        // this.menuLayout.showDebug(this.ctx);
 
         this.title();
 
