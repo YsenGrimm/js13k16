@@ -24,6 +24,7 @@ export class Ingame {
     cells: number;
 
     patternManager: PatternManager;
+    gamebg: GameBackground;
     scanline: Scanline;
     stats: Stats;
 
@@ -62,6 +63,7 @@ export class Ingame {
             this.gems.push(new Gem(gemData.id, this.ctx, this.screenSize.width, this.screenSize.height, gemData.type, gemData.ring, gemData.angle, gemData.speed, gemData.delay));
         }
 
+        this.gamebg = new GameBackground(this.ctx, this.screenSize, this.layer, this.cells);
         this.scanline = new Scanline(this.ctx, this.screenSize.width, this.screenSize.height);
         this.stats = new Stats(this.ctx, this.player, { width: this.screenSize.width, height: this.screenSize.height });        
     }
@@ -124,8 +126,7 @@ export class Ingame {
     }
 
     render() {
-        this.drawBoard();
-
+        this.gamebg.render();
         this.scanline.render();
 
         for (let i = 0; i < this.enemies.length; i++) {
@@ -139,34 +140,6 @@ export class Ingame {
         this.player.render();
 
         this.stats.render();
-    }
-
-    private drawBoard() {
-        this.ctx.strokeStyle = "#D95970";
-        let minR = 50;
-        let scaleR = 30;
-
-        for (let i = 0; i < this.layer + 1; i++) {
-            this.ctx.beginPath();
-            this.ctx.arc(this.screenSize.width/2, this.screenSize.height/2, minR + scaleR * i, 0, Math.PI*2);
-            this.ctx.stroke();
-        }
-
-        this.ctx.strokeStyle = "#D95970";
-        let slice = 360 / this.cells;
-
-        for (let i = 0; i < this.cells; i++) {
-            this.ctx.beginPath();
-            this.ctx.moveTo(this.screenSize.width/2, this.screenSize.height/2);
-            this.ctx.lineTo((Math.cos(Utils.deg2rad(i * slice)) * 230) + this.screenSize.width/2, (Math.sin(Utils.deg2rad(i * slice)) * 230) + this.screenSize.height/2);
-            this.ctx.stroke();
-        }
-
-        // fill center circle
-        this.ctx.fillStyle = "#D95970";
-        this.ctx.beginPath();
-        this.ctx.arc(this.screenSize.width/2, this.screenSize.height/2, minR, 0, 2 * Math.PI);
-        this.ctx.fill();
     }
 
     public resetWave() {
