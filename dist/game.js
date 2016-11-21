@@ -55,8 +55,9 @@
 
 	"use strict";
 	var ingame_1 = __webpack_require__(2);
-	var menu_1 = __webpack_require__(11);
-	var statemanager_1 = __webpack_require__(12);
+	var menu_1 = __webpack_require__(13);
+	var editor_1 = __webpack_require__(17);
+	var statemanager_1 = __webpack_require__(14);
 	var input_1 = __webpack_require__(5);
 	var Game = (function () {
 	    function Game() {
@@ -71,6 +72,7 @@
 	        this.stateManager = new statemanager_1.StateManager(statemanager_1.States.MENU);
 	        this.ingame = new ingame_1.Ingame(this.ctx, this.inputManager, this.screenSize, this.bgColor);
 	        this.menu = new menu_1.Menu(this.ctx, this.inputManager, this.screenSize, this.bgColor, this.stateManager);
+	        this.editor = new editor_1.Editor(this.ctx, this.inputManager, this.screenSize);
 	        // gameloop
 	        this.update = this.update.bind(this);
 	        window.requestAnimationFrame(this.update);
@@ -85,6 +87,8 @@
 	                break;
 	            case statemanager_1.States.SCORE:
 	                break;
+	            case statemanager_1.States.EDITOR:
+	                this.editor.update();
 	        }
 	        this.draw();
 	        window.requestAnimationFrame(this.update);
@@ -101,6 +105,8 @@
 	                break;
 	            case statemanager_1.States.SCORE:
 	                break;
+	            case statemanager_1.States.EDITOR:
+	                this.editor.render();
 	        }
 	    };
 	    return Game;
@@ -116,10 +122,10 @@
 	var player_1 = __webpack_require__(3);
 	var enemy_1 = __webpack_require__(7);
 	var scanline_1 = __webpack_require__(8);
-	var utils_1 = __webpack_require__(4);
 	var gem_1 = __webpack_require__(6);
 	var stats_1 = __webpack_require__(9);
-	var pattern_1 = __webpack_require__(10);
+	var gamebg_1 = __webpack_require__(10);
+	var patternmanager_1 = __webpack_require__(11);
 	var Ingame = (function () {
 	    function Ingame(ctx, inputManager, screenSize, bgColor) {
 	        this.ctx = ctx;
@@ -132,17 +138,19 @@
 	        this.layer = 6;
 	        this.cells = 16;
 	        this.activeWave = 0;
-	        this.player = new player_1.Player(0, this.ctx, this.inputManager, this.layer, 0, this.screenSize.width, this.screenSize.height, pattern_1.PATTERN.waves[this.activeWave].win);
+	        this.patternManager = new patternmanager_1.PatternManager();
+	        this.player = new player_1.Player(0, this.ctx, this.inputManager, this.layer, 0, this.screenSize.width, this.screenSize.height, this.patternManager.getPattern(0).waves[this.activeWave].win);
 	        this.enemies = new Array();
-	        for (var _i = 0, _a = pattern_1.PATTERN.waves[this.activeWave].enemys; _i < _a.length; _i++) {
+	        for (var _i = 0, _a = this.patternManager.getPattern(0).waves[this.activeWave].enemies; _i < _a.length; _i++) {
 	            var enemyData = _a[_i];
 	            this.enemies.push(new enemy_1.Enemy(enemyData.id, this.ctx, this.screenSize.width, this.screenSize.height, enemyData.ring, enemyData.angle, enemyData.speed, enemyData.delay));
 	        }
 	        this.gems = new Array();
-	        for (var _b = 0, _c = pattern_1.PATTERN.waves[this.activeWave].gems; _b < _c.length; _b++) {
+	        for (var _b = 0, _c = this.patternManager.getPattern(0).waves[this.activeWave].gems; _b < _c.length; _b++) {
 	            var gemData = _c[_b];
 	            this.gems.push(new gem_1.Gem(gemData.id, this.ctx, this.screenSize.width, this.screenSize.height, gemData.type, gemData.ring, gemData.angle, gemData.speed, gemData.delay));
 	        }
+	        this.gamebg = new gamebg_1.GameBackground(this.ctx, this.screenSize, this.layer, this.cells);
 	        this.scanline = new scanline_1.Scanline(this.ctx, this.screenSize.width, this.screenSize.height);
 	        this.stats = new stats_1.Stats(this.ctx, this.player, { width: this.screenSize.width, height: this.screenSize.height });
 	    }
@@ -200,7 +208,7 @@
 	        this.inputManager.update();
 	    };
 	    Ingame.prototype.render = function () {
-	        this.drawBoard();
+	        this.gamebg.render();
 	        this.scanline.render();
 	        for (var i = 0; i < this.enemies.length; i++) {
 	            this.enemies[i].render();
@@ -211,29 +219,6 @@
 	        this.player.render();
 	        this.stats.render();
 	    };
-	    Ingame.prototype.drawBoard = function () {
-	        this.ctx.strokeStyle = "#D95970";
-	        var minR = 50;
-	        var scaleR = 30;
-	        for (var i = 0; i < this.layer + 1; i++) {
-	            this.ctx.beginPath();
-	            this.ctx.arc(this.screenSize.width / 2, this.screenSize.height / 2, minR + scaleR * i, 0, Math.PI * 2);
-	            this.ctx.stroke();
-	        }
-	        this.ctx.strokeStyle = "#D95970";
-	        var slice = 360 / this.cells;
-	        for (var i = 0; i < this.cells; i++) {
-	            this.ctx.beginPath();
-	            this.ctx.moveTo(this.screenSize.width / 2, this.screenSize.height / 2);
-	            this.ctx.lineTo((Math.cos(utils_1.Utils.deg2rad(i * slice)) * 230) + this.screenSize.width / 2, (Math.sin(utils_1.Utils.deg2rad(i * slice)) * 230) + this.screenSize.height / 2);
-	            this.ctx.stroke();
-	        }
-	        // fill center circle
-	        this.ctx.fillStyle = "#D95970";
-	        this.ctx.beginPath();
-	        this.ctx.arc(this.screenSize.width / 2, this.screenSize.height / 2, minR, 0, 2 * Math.PI);
-	        this.ctx.fill();
-	    };
 	    Ingame.prototype.resetWave = function () {
 	        this.player.reset();
 	    };
@@ -241,14 +226,14 @@
 	        this.player.reset();
 	        this.activeWave++;
 	        // set new player goals
-	        this.player.setGoals(pattern_1.PATTERN.waves[this.activeWave].win);
+	        this.player.setGoals(this.patternManager.getPattern(0).waves[this.activeWave].win);
 	        // new enemies
-	        for (var _i = 0, _a = pattern_1.PATTERN.waves[this.activeWave].enemys; _i < _a.length; _i++) {
+	        for (var _i = 0, _a = this.patternManager.getPattern(0).waves[this.activeWave].enemies; _i < _a.length; _i++) {
 	            var enemyData = _a[_i];
 	            this.enemies.push(new enemy_1.Enemy(enemyData.id, this.ctx, this.screenSize.width, this.screenSize.height, enemyData.ring, enemyData.angle, enemyData.speed, enemyData.delay));
 	        }
 	        // new gems
-	        for (var _b = 0, _c = pattern_1.PATTERN.waves[this.activeWave].gems; _b < _c.length; _b++) {
+	        for (var _b = 0, _c = this.patternManager.getPattern(0).waves[this.activeWave].gems; _b < _c.length; _b++) {
 	            var gemData = _c[_b];
 	            this.gems.push(new gem_1.Gem(gemData.id, this.ctx, this.screenSize.width, this.screenSize.height, gemData.type, gemData.ring, gemData.angle, gemData.speed, gemData.delay));
 	        }
@@ -298,25 +283,25 @@
 	            case 0:
 	                // right
 	                if (this.axisPool[this.axis] === 0) {
-	                    if (this.inputMarager.justPressed(input_1.KeyCode.LEFT_ARROW)) {
+	                    if (this.inputMarager.justPressed(input_1.KeyCode.DOWN_ARROW)) {
 	                        this.pos--;
 	                        if (this.pos < 0) {
 	                            this.pos = 0;
 	                        }
 	                    }
-	                    if (this.inputMarager.justPressed(input_1.KeyCode.RIGHT_ARROW)) {
+	                    if (this.inputMarager.justPressed(input_1.KeyCode.UP_ARROW)) {
 	                        this.pos++;
 	                        if (this.pos > this.maxPos) {
 	                            this.pos = this.maxPos;
 	                        }
 	                    }
-	                    if (this.inputMarager.justPressed(input_1.KeyCode.UP_ARROW)) {
+	                    if (this.inputMarager.justPressed(input_1.KeyCode.LEFT_ARROW)) {
 	                        this.axis--;
 	                        if (this.axis < 0) {
 	                            this.axis = 3;
 	                        }
 	                    }
-	                    if (this.inputMarager.justPressed(input_1.KeyCode.DOWN_ARROW)) {
+	                    if (this.inputMarager.justPressed(input_1.KeyCode.RIGHT_ARROW)) {
 	                        this.axis++;
 	                        if (this.axis > 3) {
 	                            this.axis = 0;
@@ -337,13 +322,13 @@
 	                            this.pos = this.maxPos;
 	                        }
 	                    }
-	                    if (this.inputMarager.justPressed(input_1.KeyCode.RIGHT_ARROW)) {
+	                    if (this.inputMarager.justPressed(input_1.KeyCode.LEFT_ARROW)) {
 	                        this.axis--;
 	                        if (this.axis < 0) {
 	                            this.axis = 3;
 	                        }
 	                    }
-	                    if (this.inputMarager.justPressed(input_1.KeyCode.LEFT_ARROW)) {
+	                    if (this.inputMarager.justPressed(input_1.KeyCode.RIGHT_ARROW)) {
 	                        this.axis++;
 	                        if (this.axis > 3) {
 	                            this.axis = 0;
@@ -352,25 +337,25 @@
 	                }
 	                // left
 	                if (this.axisPool[this.axis] === 180) {
-	                    if (this.inputMarager.justPressed(input_1.KeyCode.RIGHT_ARROW)) {
+	                    if (this.inputMarager.justPressed(input_1.KeyCode.DOWN_ARROW)) {
 	                        this.pos--;
 	                        if (this.pos < 0) {
 	                            this.pos = 0;
 	                        }
 	                    }
-	                    if (this.inputMarager.justPressed(input_1.KeyCode.LEFT_ARROW)) {
+	                    if (this.inputMarager.justPressed(input_1.KeyCode.UP_ARROW)) {
 	                        this.pos++;
 	                        if (this.pos > this.maxPos) {
 	                            this.pos = this.maxPos;
 	                        }
 	                    }
-	                    if (this.inputMarager.justPressed(input_1.KeyCode.DOWN_ARROW)) {
+	                    if (this.inputMarager.justPressed(input_1.KeyCode.LEFT_ARROW)) {
 	                        this.axis--;
 	                        if (this.axis < 0) {
 	                            this.axis = 3;
 	                        }
 	                    }
-	                    if (this.inputMarager.justPressed(input_1.KeyCode.UP_ARROW)) {
+	                    if (this.inputMarager.justPressed(input_1.KeyCode.RIGHT_ARROW)) {
 	                        this.axis++;
 	                        if (this.axis > 3) {
 	                            this.axis = 0;
@@ -914,6 +899,74 @@
 
 /***/ },
 /* 10 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var utils_1 = __webpack_require__(4);
+	var GameBackground = (function () {
+	    function GameBackground(ctx, screenSize, layer, cells) {
+	        this.ctx = ctx;
+	        this.screenSize = screenSize;
+	        this.layer = layer;
+	        this.cells = cells;
+	        this.strokeColor = "#D95970";
+	    }
+	    GameBackground.prototype.update = function () {
+	    };
+	    GameBackground.prototype.render = function () {
+	        this.ctx.strokeStyle = this.strokeColor;
+	        var minR = 50;
+	        var scaleR = 30;
+	        for (var i = 0; i < this.layer + 1; i++) {
+	            this.ctx.beginPath();
+	            this.ctx.arc(this.screenSize.width / 2, this.screenSize.height / 2, minR + scaleR * i, 0, Math.PI * 2);
+	            this.ctx.stroke();
+	        }
+	        this.ctx.strokeStyle = this.strokeColor;
+	        var slice = 360 / this.cells;
+	        for (var i = 0; i < this.cells; i++) {
+	            this.ctx.beginPath();
+	            this.ctx.moveTo(this.screenSize.width / 2, this.screenSize.height / 2);
+	            this.ctx.lineTo((Math.cos(utils_1.Utils.deg2rad(i * slice)) * 230) + this.screenSize.width / 2, (Math.sin(utils_1.Utils.deg2rad(i * slice)) * 230) + this.screenSize.height / 2);
+	            this.ctx.stroke();
+	        }
+	        // fill center circle
+	        this.ctx.fillStyle = this.strokeColor;
+	        this.ctx.beginPath();
+	        this.ctx.arc(this.screenSize.width / 2, this.screenSize.height / 2, minR, 0, 2 * Math.PI);
+	        this.ctx.fill();
+	    };
+	    return GameBackground;
+	}());
+	exports.GameBackground = GameBackground;
+
+
+/***/ },
+/* 11 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var pattern_1 = __webpack_require__(12);
+	var PatternManager = (function () {
+	    function PatternManager() {
+	        this.patterns = [pattern_1.PATTERN];
+	    }
+	    PatternManager.prototype.getPattern = function (index) {
+	        if (index >= this.patterns.length) {
+	            return null;
+	        }
+	        return this.patterns[index];
+	    };
+	    PatternManager.prototype.writePattern = function (pattern) {
+	        this.patterns.push(pattern);
+	    };
+	    return PatternManager;
+	}());
+	exports.PatternManager = PatternManager;
+
+
+/***/ },
+/* 12 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -926,7 +979,7 @@
 	                blue: 1,
 	                yellow: 1
 	            },
-	            enemys: [
+	            enemies: [
 	                {
 	                    id: 0,
 	                    ring: 0,
@@ -977,7 +1030,7 @@
 	                blue: 2,
 	                yellow: 2
 	            },
-	            enemys: [
+	            enemies: [
 	                {
 	                    id: 0,
 	                    ring: 5,
@@ -1079,13 +1132,13 @@
 
 
 /***/ },
-/* 11 */
+/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var statemanager_1 = __webpack_require__(12);
-	var button_1 = __webpack_require__(13);
-	var layout_1 = __webpack_require__(14);
+	var statemanager_1 = __webpack_require__(14);
+	var button_1 = __webpack_require__(15);
+	var layout_1 = __webpack_require__(16);
 	var input_1 = __webpack_require__(5);
 	var Menu = (function () {
 	    function Menu(ctx, inputManager, screenSize, bgColor, stateManager) {
@@ -1101,8 +1154,9 @@
 	        this.buttons = [
 	            new button_1.Button(this.ctx, this.menuLayout, "SINGLEPLAYER", { width: 200, height: 30 }, { row: 5, col: 1, pos: layout_1.LayoutPosition.CENTER_CENTER }, function () { return _this.stateManager.switchTo(statemanager_1.States.GAME); }),
 	            new button_1.Button(this.ctx, this.menuLayout, "MULTIPLAYER", { width: 200, height: 30 }, { row: 6, col: 1, pos: layout_1.LayoutPosition.CENTER_CENTER }, function () { return _this.stateManager.switchTo(statemanager_1.States.MENU); }),
-	            new button_1.Button(this.ctx, this.menuLayout, "HIGHSCORE", { width: 200, height: 30 }, { row: 7, col: 1, pos: layout_1.LayoutPosition.CENTER_CENTER }, function () { return _this.stateManager.switchTo(statemanager_1.States.MENU); }),
-	            new button_1.Button(this.ctx, this.menuLayout, "SETTINGS", { width: 200, height: 30 }, { row: 8, col: 1, pos: layout_1.LayoutPosition.CENTER_CENTER }, function () { return _this.stateManager.switchTo(statemanager_1.States.MENU); })
+	            new button_1.Button(this.ctx, this.menuLayout, "EDITOR", { width: 200, height: 30 }, { row: 7, col: 1, pos: layout_1.LayoutPosition.CENTER_CENTER }, function () { return _this.stateManager.switchTo(statemanager_1.States.EDITOR); }),
+	            new button_1.Button(this.ctx, this.menuLayout, "HIGHSCORE", { width: 200, height: 30 }, { row: 8, col: 1, pos: layout_1.LayoutPosition.CENTER_CENTER }, function () { return _this.stateManager.switchTo(statemanager_1.States.MENU); }),
+	            new button_1.Button(this.ctx, this.menuLayout, "SETTINGS", { width: 200, height: 30 }, { row: 9, col: 1, pos: layout_1.LayoutPosition.CENTER_CENTER }, function () { return _this.stateManager.switchTo(statemanager_1.States.MENU); })
 	        ];
 	        this.activeButton = 0;
 	    }
@@ -1129,7 +1183,7 @@
 	        }
 	    };
 	    Menu.prototype.render = function () {
-	        this.menuLayout.showDebug(this.ctx);
+	        // this.menuLayout.showDebug(this.ctx);
 	        this.title();
 	        for (var _i = 0, _a = this.buttons; _i < _a.length; _i++) {
 	            var button = _a[_i];
@@ -1149,7 +1203,7 @@
 
 
 /***/ },
-/* 12 */
+/* 14 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -1157,6 +1211,7 @@
 	    States[States["MENU"] = 0] = "MENU";
 	    States[States["GAME"] = 1] = "GAME";
 	    States[States["SCORE"] = 2] = "SCORE";
+	    States[States["EDITOR"] = 3] = "EDITOR";
 	})(exports.States || (exports.States = {}));
 	var States = exports.States;
 	var StateManager = (function () {
@@ -1173,7 +1228,7 @@
 
 
 /***/ },
-/* 13 */
+/* 15 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -1220,7 +1275,7 @@
 
 
 /***/ },
-/* 14 */
+/* 16 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -1293,6 +1348,33 @@
 	    return Layout;
 	}());
 	exports.Layout = Layout;
+
+
+/***/ },
+/* 17 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var layout_1 = __webpack_require__(16);
+	var gamebg_1 = __webpack_require__(10);
+	var Editor = (function () {
+	    function Editor(ctx, inputManager, screenSize) {
+	        this.ctx = ctx;
+	        this.screenSize = screenSize;
+	        this.inputManager = inputManager;
+	        this.editorLayout = new layout_1.Layout(this.screenSize, 10, 5);
+	        this.layer = 6;
+	        this.cells = 16;
+	        this.gameBg = new gamebg_1.GameBackground(this.ctx, this.screenSize, this.layer, this.cells);
+	    }
+	    Editor.prototype.update = function () {
+	    };
+	    Editor.prototype.render = function () {
+	        this.gameBg.render();
+	    };
+	    return Editor;
+	}());
+	exports.Editor = Editor;
 
 
 /***/ }
