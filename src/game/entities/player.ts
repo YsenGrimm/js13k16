@@ -81,25 +81,25 @@ export class Player {
             case 0:
                 // right
                 if (this.axisPool[this.axis] === 0) {
-                    if (this.inputMarager.justPressed(KeyCode.LEFT_ARROW)) {
+                    if (this.inputMarager.justPressed(KeyCode.DOWN_ARROW)) {
                         this.pos--;
                         if (this.pos < 0) {
                             this.pos = 0;
                         }
                     }
-                    if (this.inputMarager.justPressed(KeyCode.RIGHT_ARROW)) {
+                    if (this.inputMarager.justPressed(KeyCode.UP_ARROW)) {
                         this.pos++;
                         if (this.pos > this.maxPos) {
                             this.pos = this.maxPos;
                         }
                     }
-                    if (this.inputMarager.justPressed(KeyCode.UP_ARROW)) {
+                    if (this.inputMarager.justPressed(KeyCode.LEFT_ARROW)) {
                         this.axis--;
                         if (this.axis < 0) {
                             this.axis = 3;
                         }
                     }
-                    if (this.inputMarager.justPressed(KeyCode.DOWN_ARROW)) {
+                    if (this.inputMarager.justPressed(KeyCode.RIGHT_ARROW)) {
                         this.axis++;
                         if (this.axis > 3) {
                             this.axis = 0;
@@ -121,13 +121,13 @@ export class Player {
                             this.pos = this.maxPos;
                         }
                     }
-                    if (this.inputMarager.justPressed(KeyCode.RIGHT_ARROW)) {
+                    if (this.inputMarager.justPressed(KeyCode.LEFT_ARROW)) {
                         this.axis--;
                         if (this.axis < 0) {
                             this.axis = 3;
                         }
                     }
-                    if (this.inputMarager.justPressed(KeyCode.LEFT_ARROW)) {
+                    if (this.inputMarager.justPressed(KeyCode.RIGHT_ARROW)) {
                         this.axis++;
                         if (this.axis > 3) {
                             this.axis = 0;
@@ -137,25 +137,25 @@ export class Player {
 
                 // left
                 if (this.axisPool[this.axis] === 180) {
-                    if (this.inputMarager.justPressed(KeyCode.RIGHT_ARROW)) {
+                    if (this.inputMarager.justPressed(KeyCode.DOWN_ARROW)) {
                         this.pos--;
                         if (this.pos < 0) {
                             this.pos = 0;
                         }
                     }
-                    if (this.inputMarager.justPressed(KeyCode.LEFT_ARROW)) {
+                    if (this.inputMarager.justPressed(KeyCode.UP_ARROW)) {
                         this.pos++;
                         if (this.pos > this.maxPos) {
                             this.pos = this.maxPos;
                         }
                     }
-                    if (this.inputMarager.justPressed(KeyCode.DOWN_ARROW)) {
+                    if (this.inputMarager.justPressed(KeyCode.LEFT_ARROW)) {
                         this.axis--;
                         if (this.axis < 0) {
                             this.axis = 3;
                         }
                     }
-                    if (this.inputMarager.justPressed(KeyCode.UP_ARROW)) {
+                    if (this.inputMarager.justPressed(KeyCode.RIGHT_ARROW)) {
                         this.axis++;
                         if (this.axis > 3) {
                             this.axis = 0;
