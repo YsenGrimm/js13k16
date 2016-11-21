@@ -2,9 +2,8 @@ import { ScreenSize } from '../utils/utils';
 import { KeyCode, Input } from "../utils/input"
 
 import { Layout, LayoutOptions, LayoutPosition } from '../ui/layout';
-import { Label } from '../ui/label';
 
-import { Ingame } from '../game/ingame';
+import { GameBackground } from "../game/gamebg";
 
 export class Editor {
 
@@ -13,9 +12,10 @@ export class Editor {
     private inputManager: Input;
     private editorLayout: Layout;
 
-    labels: Array<Label>;
+    private layer: number;
+    private cells: number;
 
-    ingame: Ingame;
+    private gameBg: GameBackground;
 
     constructor(ctx: CanvasRenderingContext2D, inputManager: Input, screenSize: ScreenSize) {
         this.ctx = ctx;
@@ -24,23 +24,18 @@ export class Editor {
 
         this.editorLayout = new Layout(this.screenSize, 10, 5);
 
-        this.labels = [
-            new Label(this.ctx, this.editorLayout, "Test", { width: 100, height: 20 }, { row: 0, col: 0, pos: LayoutPosition.CENTER_CENTER })
-        ];
+        this.layer = 6;
+        this.cells = 16;
 
-        this.ingame = new Ingame(this.ctx, this.inputManager, this.screenSize, "#533B59");
+        this.gameBg = new GameBackground(this.ctx, this.screenSize, this.layer, this.cells);
     }
 
     update() {
-        this.ingame.update();
+        
     }
 
     render() {
-        this.editorLayout.showDebug(this.ctx);
-        for (const label of this.labels) {
-            label.render();
-        }
-        this.ingame.render();
+        this.gameBg.render();
     }
 
 }
