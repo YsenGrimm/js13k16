@@ -9,8 +9,6 @@ export class Button {
     textWidth: number;
     fontSize: number;
 
-    offset: number;
-
     boxWidth: number;
     boxHeight: number;
     boxOffset: number;
